@@ -1,0 +1,31 @@
+path: /api/v1/account/register
+method: POST
+actor: manager, patient, doctor
+description: user create new account(patient role)
+
+path: /api/v1/account/login
+method: POST
+actor: manager, patient, doctor
+description: user login to the page 
+
+path: /api/v1/admin/users
+method: POST
+actor: manager
+description: admin create a new user
+
+path: /api/v1/admin/users?role=${role_id}
+method: GET
+actor: manager
+description: admin view all users who have the exact role_id
+
+path: /api/v1/admin/users?id=${user_id}
+method: GET
+actor: manager
+description: admin view a user profile
+
+path: /api/v1/admin/users?id=${user_id}
+method: DELETE
+actor: manager
+description: admin delete user
+
+/api/v1/admin/requests

@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  specialization: {
+    type: Object,
+    required: false,
+  },
   role: {
     type: String,
     required: true,
@@ -48,11 +52,10 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async next => {
   if (!this.isModified('password')) {
     next();
   }
-
   this.password = await bcrypt.hash(this.password, 10);
 });
 
@@ -63,4 +66,4 @@ userSchema.methods.comparePassword = async (
   return await bcrypt.compare(enteredPassword, hashedPassword);
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('Users', userSchema);
