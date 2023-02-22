@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const admin = require('../controller/adminController');
 const schedule = require('../controller/scheduleController');
-
+const appointment = require('../controller/appointmentController');
+const multer = require('../utils/multer');
 router
   .route('/users')
   .get(admin.GetUser)
-  .post(admin.AddNewUser)
+  .post(multer.single('avatar'), admin.AddNewUser)
   .delete(admin.DeleteUser);
 
 router
@@ -20,5 +21,6 @@ router
   .post(schedule.CreateDoctorSchedule)
   .get(schedule.ViewAllDoctorSchedule);
 
-router.get('/schedule/appointment',)
+router.get('/appointment/all', appointment.ViewAllAppointment);
+
 module.exports = router;

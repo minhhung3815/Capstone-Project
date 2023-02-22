@@ -1,6 +1,7 @@
 const User = require('../model/userModel');
 const Request = require('../model/requestModel');
-
+const Role = require('../model/roleModel');
+const cloudinary = require('cloudinary');
 /**
  * Get list of users or a user profile
  */
@@ -29,6 +30,7 @@ exports.GetUser = async (req, res, next) => {
  * Create new user
  */
 exports.AddNewUser = async (req, res, next) => {
+  const fileUpload = req.file ? req.file : '';
   const name = req.body.name ? req.body.name : '';
   const email = req.body.email ? req.body.email : '';
   const password = req.body.password ? req.body.password : '';
@@ -40,7 +42,9 @@ exports.AddNewUser = async (req, res, next) => {
   const address = req.body.address ? req.body.address : '';
   const identity_card = req.body.identity_card ? req.body.identity_card : '';
   const role = req.body.role ? req.body.role : '';
+  const specialization = req.body.specialization ? req.body.specialization : '';
   if (
+    !fileUpload ||
     !name ||
     !email ||
     !gender ||
@@ -55,23 +59,50 @@ exports.AddNewUser = async (req, res, next) => {
     });
   }
   try {
-    await User.create({
-      name,
-      email,
-      gender,
-      phone_number,
-      password,
-      identity_card,
-      date_of_birth,
-      address,
-      role,
+    const avatar = await cloudinary.v2.uploader.upload(fileUpload.path, {
+      folder: 'avatar',
+      width: 150,
+      crop: 'scale',
     });
+    role === 'Doctor'
+      ? await User.create({
+          name,
+          email,
+          gender,
+          phone_number,
+          password,
+          identity_card,
+          date_of_birth,
+          address,
+          role,
+          specialization,
+          avatar: {
+            public_id: avatar.public_id,
+            url: avatar.secure_url,
+          },
+        })
+      : await User.create({
+          name,
+          email,
+          gender,
+          phone_number,
+          password,
+          identity_card,
+          date_of_birth,
+          address,
+          role,
+          avatar: {
+            public_id: avatar.public_id,
+            url: avatar.secure_url,
+          },
+        });
 
     return res.status(200).json({
       success: true,
       data: 'Create account successfully',
     });
   } catch (err) {
+    console.log(err);
     if (err.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -169,5 +200,37 @@ exports.CreateRequest = async (req, res, next) => {
     return res
       .status(500)
       .json({ success: false, data: 'Something went wrong' });
+  }
+};
+
+exports.CreateRole = async (req, res, next) => {
+  const role = req.body.role;
+  if (!role) {
+    return res.status(400).json({
+      success: false,
+      data: 'Please provide information',
+    });
+  }
+  try {
+    await Role.create({ role });
+    return res
+      .status(200)
+      .json({ success: true, data: 'Create new role successfully' });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res
+        .status(400)
+        .json({ success: false, data: 'Role is already existed' });
+    }
+    return res.status(500).json({ success: false, data: 'Error occured' });
+  }
+};
+
+exports.ViewAllRole = async (req, res, next) => {
+  try {
+    const role = await Role.find();
+    return res.status(200).json({ success: true, data: role });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: 'Error occured' });
   }
 };

@@ -1,6 +1,11 @@
 const User = require('../model/userModel');
+const sendToken = require('../utils/sendToken');
+const cloudinary = require('cloudinary');
+const sendEmail = require('../utils/sendEmail');
+const jwt = require('jsonwebtoken');
 
 exports.Register = async (req, res, next) => {
+  const fileUpload = req.file ? req.file : '';
   const name = req.body.name ? req.body.name : '';
   const email = req.body.email ? req.body.email : '';
   const password = req.body.password ? req.body.password : '';
@@ -11,8 +16,9 @@ exports.Register = async (req, res, next) => {
     : '';
   const address = req.body.address ? req.body.address : '';
   const identity_card = req.body.identity_card ? req.body.identity_card : '';
-  const role = req.body.role ? req.body.role : 3;
+  const role = req.body.role ? req.body.role : 'User';
   if (
+    !fileUpload ||
     !name ||
     !email ||
     !gender ||
@@ -26,6 +32,11 @@ exports.Register = async (req, res, next) => {
     });
   }
   try {
+    const avatar = await cloudinary.v2.uploader.upload(fileUpload.path, {
+      folder: 'avatar',
+      width: 150,
+      crop: 'scale',
+    });
     await User.create({
       name,
       email,
@@ -36,6 +47,10 @@ exports.Register = async (req, res, next) => {
       date_of_birth,
       address,
       role,
+      avatar: {
+        public_id: avatar.public_id,
+        url: avatar.secure_url,
+      },
     });
 
     return res.status(200).json({
@@ -43,6 +58,7 @@ exports.Register = async (req, res, next) => {
       data: 'Create account successfully',
     });
   } catch (err) {
+    console.log(err);
     if (err.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -71,6 +87,7 @@ exports.Login = async (req, res, next) => {
         .status(404)
         .json({ success: false, data: 'Email is not found' });
     }
+
     const checkPassword = await user.comparePassword(password, user.password);
 
     if (!checkPassword) {
@@ -79,14 +96,53 @@ exports.Login = async (req, res, next) => {
         data: 'Password is incorrect',
       });
     }
-    return res.status(200).json({
-      success: true,
-      data: 'Login successfully',
-    });
+    sendToken(user, 200, res);
   } catch (err) {
     console.log(err);
     return res
       .status(500)
       .json({ success: false, data: 'Something went wrong' });
+  }
+};
+
+exports.EmailVerification = async (req, res, next) => {
+  const email = req.body.email ? req.body.email : '';
+  if (!email) {
+    return res
+      .status(400)
+      .json({ success: false, data: 'Please provide valid information' });
+  }
+  try {
+    const subject = 'Email Verification';
+    const token = jwt.sign({ data: 'Token Data' }, process.env.JWT_SECRET, {
+      expiresIn: '10m',
+    });
+    const verificationUrl = `${req.protocol}://${req.get(
+      'host',
+    )}/api/v1/account/verification/${token}`;
+    const data = `Hi! There, You have recently visited 
+    our website and entered your email.
+    Please follow the given link to verify your email
+    ${verificationUrl} 
+    Thanks`;
+    const options = { email, subject, data };
+    await sendEmail(options);
+    return res
+      .status(200)
+      .json({ success: true, data: 'Email has already sent to user' });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: 'Error occurred' });
+  }
+};
+
+exports.EmailVerificationToken = async (req, res, next) => {
+  const { token } = req.params;
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    return res.status(200).json({ success: true, data: 'Email is verified' });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, data: 'Email verification link is expired' });
   }
 };

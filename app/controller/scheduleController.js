@@ -47,8 +47,4 @@ exports.ViewAllDoctorSchedule = async (req, res, next) => {
   }
 };
 
-exports.ViewDoctorAppointment = async (req, res, next) => {
-  try {
-    const doctor_id = req.query.doctor_id;
-  } catch (error) {}
-};
+
