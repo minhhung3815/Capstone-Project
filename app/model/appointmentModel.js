@@ -33,21 +33,14 @@ const appointmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  finished: {
-    type: Boolean,
-    default: false,
+  status: {
+    type: String,
+    enum: ['pending', 'cancelled', 'processing', 'finished'],
+    default: 'pending',
   },
-  payment: {
-    id: {
-      type: String,
-      required: false,
-      default: '1', //temporary field
-    },
-    status: {
-      type: String,
-      required: false,
-      default: '1', //temporary field
-    },
+  payment_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Payment',
   },
   createdAt: {
     type: Date,

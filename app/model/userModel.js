@@ -12,10 +12,6 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please enter your email'],
     unique: true,
   },
-  is_verified: {
-    type: Boolean,
-    default: false,
-  },
   gender: {
     type: String,
     required: true,
@@ -36,21 +32,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  identity_card: {
-    type: String,
-    required: false,
-  },
   date_of_birth: {
     type: Date,
     required: true,
-  },
-  address: {
-    type: String,
-    required: false,
-  },
-  specialization: {
-    type: String,
-    required: false,
   },
   role: {
     type: String,

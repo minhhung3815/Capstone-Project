@@ -43,6 +43,11 @@ exports.MakeAppointment = async (req, res, next) => {
       .status(200)
       .json({ success: true, data: 'Create a new appointment successfully' });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ success: false, data: 'Error occured' });
   }
 };
+
+exports.UpdateAppointment = async (req, res, next) => {
+  
+}
