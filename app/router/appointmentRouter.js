@@ -6,4 +6,6 @@ router.get('/all', appointment.ViewAllAppointment);
 
 router.route('/new').post(appointment.MakeAppointment);
 
+router.put('/update/status', appointment.UpdateAppointment);
+
 module.exports = router;
