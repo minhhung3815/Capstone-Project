@@ -16,10 +16,7 @@ exports.CreatPayment = async (req, res, next) => {
 };
 
 exports.GetPaymentDetail = async (req, res, next) => {
-  const payment = Payment.find()
-    .populate('appointment_id')
-    .exec((err, data) => {
-      console.log(data);
-    });
+  const payment_id = req.params.id;
+  const payment = await Payment.find().populate(['appointment_id', 'user_id']);
   return res.status(200).send({ success: true, data: payment });
 };

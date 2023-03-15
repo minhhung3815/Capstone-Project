@@ -1,20 +1,20 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const user = require('../controller/userController');
-const multer = require('../utils/multer');
+const user = require("../controller/userController");
+const multer = require("../utils/multer");
 
-router.post('/create/account', multer.single('avatar'), user.AddNewUser);
+router.post("/create/account", multer.single("image"), user.AddNewUser);
 
-router.get('/account/:role', user.GetUser);
+router.get("/account/:role", user.GetUser);
 
-router.delete('/remove/account', user.DeleteUser);
+router.delete("/remove/account", user.DeleteUser);
 
-router.post('/register', multer.single('avatar'), user.Register);
+router.post("/register", multer.single("image"), user.Register);
 
-router.post('/verification', user.EmailVerification);
+router.post("/verification", user.EmailVerification);
 
-router.get('/verification/:token', user.EmailVerificationToken);
+router.get("/verification/:token", user.EmailVerificationToken);
 
-router.post('/login', user.Login);
+router.post("/login", user.Login);
 
 module.exports = router;

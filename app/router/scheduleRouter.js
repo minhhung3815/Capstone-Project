@@ -1,9 +1,9 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const schedule = require('../controller/scheduleController');
+const schedule = require("../controller/scheduleController");
 
 router
-  .route('/')
+  .route("/")
   .get(schedule.ViewAllDoctorSchedule)
   .post(schedule.CreateDoctorSchedule);
 

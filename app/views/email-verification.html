@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify your email address</title>
+    <style>
+      /* Base styles */
+      body {
+        font-family: "Helvetica Neue", "Helvetica", Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        color: #333333;
+        background-color: #f8f8f8;
+        margin: 0;
+        padding: 0;
+      }
+
+      a {
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      /* Wrapper */
+      .wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 40px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        margin: 0;
+        color: #007bff;
+      }
+
+      /* Content */
+      .content {
+        margin-bottom: 30px;
+        text-align: center;
+      }
+
+      .content p {
+        margin: 0 0 20px 0;
+        font-size: 20px;
+      }
+
+      /* Button */
+      .button {
+        display: inline-block;
+        padding: 16px 32px;
+        border-radius: 8px;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        color: #ffffff;
+        background-color: #007bff;
+        transition: background-color 0.2s ease-in-out;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .button:hover {
+        background-color: #0069d9;
+      }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        font-size: 14px;
+        color: #999999;
+        margin-top: 30px;
+      }
+
+      .footer p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="header">
+        <h1>Verify your email address</h1>
+      </div>
+      <div class="content">
+        <p>{{data}}</p>
+        <div style="text-align: center;">
+          <a class="button" href="{{verificationUrl}}">Verify Email Address</a>
+        </div>
+      </div>
+      <div class="footer">
+        <p>This email was sent to {{email}}. If you did not sign up for an account, please ignore this message.</p>
+      </div>
+    </div>
+  </body>
+</html>
