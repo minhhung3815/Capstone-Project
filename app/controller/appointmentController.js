@@ -1,5 +1,5 @@
-const Appointment = require('../model/appointmentModel');
-const User = require('../model/userModel');
+const Appointment = require("../model/appointmentModel");
+const User = require("../model/userModel");
 
 /** Admin views all appointments */
 exports.ViewAllAppointment = async (req, res, next) => {
@@ -7,7 +7,7 @@ exports.ViewAllAppointment = async (req, res, next) => {
     const appointment = await Appointment.find();
     return res.status(200).json({ success: true, data: appointment });
   } catch (error) {
-    return res.status(500).json({ success: false, data: 'Error occured' });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
@@ -18,13 +18,11 @@ exports.ViewSpecificAppointment = async (req, res, next) => {
     if (!appointment) {
       return res
         .status(404)
-        .json({ success: false, data: 'Appointment not found' });
+        .json({ success: false, data: "Appointment not found" });
     }
     return res.status(200).json({ success: true, data: appointment });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, data: 'Something went wrong' });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
@@ -34,9 +32,7 @@ exports.UserViewAllAppointments = async (req, res, next) => {
     const appointments = await Appointment.findById({ user_id: req.params.id });
     return res.status(200).json({ success: true, data: appointments });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, data: 'Something went wrong' });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
@@ -48,9 +44,7 @@ exports.DoctorViewAllAppointments = async (req, res, next) => {
     });
     return res.status(200).json({ success: true, data: appointments });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, data: 'Something went wrong' });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
@@ -74,7 +68,7 @@ exports.MakeAppointment = async (req, res, next) => {
   ) {
     return res
       .status(400)
-      .json({ success: false, data: 'Please provide information' });
+      .json({ success: false, data: "Please provide information" });
   }
   try {
     await Appointment.create({
@@ -87,10 +81,10 @@ exports.MakeAppointment = async (req, res, next) => {
     });
     return res
       .status(200)
-      .json({ success: true, data: 'Create a new appointment successfully' });
+      .json({ success: true, data: "Create a new appointment successfully" });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ success: false, data: 'Error occured' });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
@@ -100,7 +94,7 @@ exports.UpdateAppointment = async (req, res, next) => {
   if (!status || !appointment_id) {
     return res
       .status(400)
-      .json({ success: false, data: 'Something went wrong' });
+      .json({ success: false, data: "Something went wrong" });
   }
   try {
     const appointment = await Appointment.findByIdAndUpdate(
@@ -112,15 +106,13 @@ exports.UpdateAppointment = async (req, res, next) => {
     if (!appointment) {
       return res
         .status(404)
-        .json({ success: false, data: 'Appointment not found' });
+        .json({ success: false, data: "Appointment not found" });
     }
     return res
       .status(200)
-      .json({ success: true, data: 'Update appointment status successfully' });
+      .json({ success: true, data: "Update appointment status successfully" });
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, data: 'Something went wrong' });
+    return res.status(500).json({ success: false, data: error });
   }
 };

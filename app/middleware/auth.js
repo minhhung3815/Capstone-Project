@@ -19,9 +19,12 @@ exports.isAuthenticatedUser = async (req, res, next) => {
 exports.authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return next(
-        new ErrorHandler(`Role: ${req.user.role} is not allowed`, 403),
-      );
+      return res
+        .status(403)
+        .json({
+          success: false,
+          data: `Role: ${req.user.role} is not allowed`,
+        });
     }
     next();
   };

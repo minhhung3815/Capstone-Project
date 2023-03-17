@@ -1,36 +1,25 @@
 const User = require("../model/userModel");
+const InactiveUser = require("../model/inactiveUserModel");
 const cloudinary = require("cloudinary");
 const sendToken = require("../utils/sendToken");
 const sendEmail = require("../utils/sendEmail");
 const jwt = require("jsonwebtoken");
 
-/**
- * Get list of users or a user profile
- */
+/** Get list of users or a user profile - ADMIN */
 exports.GetUser = async (req, res, next) => {
-  const id = req.query.id ? req.query.id : "";
   const { role } = req.params;
   try {
-    if (role !== "manager" || role !== "doctor" || role !== "user") {
-      return res.status(200).json({ success: true, data: [] });
+    if (role !== "doctor" && role !== "manager" && role !== "user") {
+      return res.status(400).json({ success: false, data: "Undefined role" });
     }
-    if (!id) {
-      const allUser = await User.find({ role: role }, { password: 0 });
-      return res.status(200).json({ success: true, data: allUser });
-    }
-    const allUser = await User.findById(id, {
-      password: 0,
-    });
+    const allUser = await User.find({ role: role }, "name email gender avatar");
     return res.status(200).json({ success: true, data: allUser });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ success: false, data: "Error occurred" });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
-/**
- * Create new user
- */
+/** Create new user - ADMIN*/
 exports.AddNewUser = async (req, res, next) => {
   const fileUpload = req.file ? req.file : "";
   const name = req.body.name ? req.body.name : "";
@@ -82,9 +71,8 @@ exports.AddNewUser = async (req, res, next) => {
       success: true,
       data: "Create account successfully",
     });
-  } catch (err) {
-    console.log(err);
-    if (err.code === 11000) {
+  } catch (error) {
+    if (error.code === 11000) {
       return res.status(400).json({
         success: false,
         data: "Email is already existed",
@@ -92,14 +80,12 @@ exports.AddNewUser = async (req, res, next) => {
     }
     return res.status(500).json({
       success: false,
-      data: "Something went wrong",
+      data: error,
     });
   }
 };
 
-/**
- * Delete a user
- */
+/** Delete a user - ADMIN*/
 exports.DeleteUser = async (req, res, next) => {
   const id = req.body.id ? req.body.id : "";
   if (!id) {
@@ -116,86 +102,35 @@ exports.DeleteUser = async (req, res, next) => {
       .status(200)
       .json({ success: true, data: "Delete user successfully" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, data: "Something went wrong" });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
-/**
- * Create new account (user)
- */
-exports.Register = async (req, res, next) => {
-  const fileUpload = req.file ? req.file : "";
-  const name = req.body.name ? req.body.name : "";
-  const email = req.body.email ? req.body.email : "";
-  const password = req.body.password ? req.body.password : "";
-  const gender = req.body.gender ? req.body.gender : "";
-  const phone_number = req.body.phone_number ? req.body.phone_number : "";
-  const date_of_birth = req.body.date_of_birth
-    ? new Date(req.body.date_of_birth)
-    : "";
-  const address = req.body.address ? req.body.address : "";
-  const identity_card = req.body.identity_card ? req.body.identity_card : "";
-  const role = req.body.role ? req.body.role : "user";
-  if (
-    !fileUpload ||
-    !name ||
-    !email ||
-    !gender ||
-    !phone_number ||
-    !date_of_birth ||
-    !password
-  ) {
-    return res.status(400).json({
-      success: false,
-      data: "Please provide valid fields",
-    });
+/** Get user detail information - ADMIN*/
+exports.GetUserDetails = async (req, res, next) => {
+  const { id } = req.query;
+  if (!id) {
+    return res.status(400).json({ success: false, data: "Missing user id" });
   }
   try {
-    const avatar = await cloudinary.v2.uploader.upload(fileUpload.path, {
-      folder: "avatar",
-      width: 150,
-      crop: "scale",
-    });
-    await User.create({
-      name,
-      email,
-      gender,
-      phone_number,
-      password,
-      identity_card,
-      date_of_birth,
-      address,
-      role,
-      avatar: {
-        public_id: avatar.public_id,
-        url: avatar.secure_url,
-      },
-    });
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, data: "User doesn't exist" });
+    }
 
     return res.status(200).json({
       success: true,
-      data: "Create account successfully",
+      data: user,
     });
-  } catch (err) {
-    console.log(err);
-    if (err.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        data: "Email is already existed",
-      });
-    }
-    return res.status(500).json({
-      success: false,
-      data: "Something went wrong",
-    });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
-/**
- * Login to the system
- */
+/** Login to the system*/
 exports.Login = async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -221,57 +156,130 @@ exports.Login = async (req, res, next) => {
       });
     }
     sendToken(user, 200, res);
-  } catch (err) {
-    console.log(err);
-    return res
-      .status(500)
-      .json({ success: false, data: "Something went wrong" });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
-/**
- * Send email to verify account
- */
-exports.EmailVerification = async (req, res, next) => {
+/** Register account (user)*/
+exports.Register = async (req, res, next) => {
+  const fileUpload = req.file ? req.file : "";
+  const name = req.body.name ? req.body.name : "";
   const email = req.body.email ? req.body.email : "";
-  if (!email) {
-    return res
-      .status(400)
-      .json({ success: false, data: "Please provide valid information" });
-  }
-  try {
-    const subject = "Email Verification";
-    const token = jwt.sign({ data: "Token Data" }, process.env.JWT_SECRET, {
-      expiresIn: process.env.MAIL_VERIFICATION_EXPIRE,
+  const password = req.body.password ? req.body.password : "";
+  const gender = req.body.gender ? req.body.gender : "";
+  const phone_number = req.body.phone_number ? req.body.phone_number : "";
+  const date_of_birth = req.body.date_of_birth
+    ? new Date(req.body.date_of_birth)
+    : "";
+  const role = "user";
+  if (
+    !name ||
+    !email ||
+    !gender ||
+    !phone_number ||
+    !date_of_birth ||
+    !password
+  ) {
+    return res.status(400).json({
+      success: false,
+      data: "Please provide valid fields",
     });
-    const verificationUrl = `${req.protocol}://${req.get(
-      "host",
-    )}/user/verification/${token}`;
-    const data =
-      "Thanks for starting the new account creation process. \
+  }
+  const template = process.env.MAIL_VERIFICATION;
+  const subject = "Email Verification";
+  const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
+    expiresIn: process.env.MAIL_VERIFICATION_EXPIRE,
+  });
+  const verificationUrl = `${req.protocol}://${req.get(
+    "host",
+  )}/user/verification/${token}`;
+  const data =
+    "Thanks for starting the new account creation process. \
       We want to make sure it's really you. Please click the button below \
       to verify your email address. If you do not want to create an account, \
-      you can ignore this message. ";
-    const options = { email, subject, data, verificationUrl };
-    await sendEmail(options);
-    return res
-      .status(200)
-      .json({ success: true, data: "Email has already sent to user" });
+      you can ignore this message.";
+  const options = { email, subject, data, verificationUrl, template };
+  try {
+    const avatar = fileUpload
+      ? await cloudinary.v2.uploader.upload(fileUpload.path, {
+          folder: "avatar",
+          width: 150,
+          crop: "scale",
+        })
+      : { public_id: "", secure_url: "" };
+    await Promise.all([
+      sendEmail(options),
+      InactiveUser.create({
+        name,
+        email,
+        gender,
+        phone_number,
+        password,
+        date_of_birth,
+        role,
+        avatar: {
+          public_id: avatar.public_id,
+          url: avatar.secure_url,
+        },
+        token,
+      }),
+    ]);
+    return res.status(200).json({
+      success: true,
+      data: "Email has already been sent to user",
+    });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ success: false, data: "Error occurred" });
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        data: "Email is already existed",
+      });
+    }
+    return res.status(500).json({
+      success: false,
+      data: error,
+    });
   }
 };
 
-/**
- * Get email with token to verify account
- */
+/** Get email with token to verify account*/
 exports.EmailVerificationToken = async (req, res, next) => {
   const { token } = req.params;
   try {
     jwt.verify(token, process.env.JWT_SECRET);
-    return res.status(200).json({ success: true, data: "Email is verified" });
+    const user = await InactiveUser.findOneAndDelete({ token });
+    if (!user) {
+      return res.status(400).json({ success: false, data: "Invalid token" });
+    }
+    const {
+      name,
+      email,
+      password,
+      gender,
+      phone_number,
+      date_of_birth,
+      role,
+      avatar,
+    } = user;
+    await User.create({
+      name,
+      email,
+      password,
+      gender,
+      phone_number,
+      date_of_birth,
+      role,
+      avatar,
+    });
+    return res.redirect("https://facebook.com");
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        data: "Email is already existed",
+      });
+    }
     return res
       .status(500)
       .json({ success: false, data: "Email verification link is expired" });

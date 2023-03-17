@@ -1,5 +1,5 @@
-const Schedule = require('../model/scheduleModel');
-const User = require('../model/userModel');
+const Schedule = require("../model/scheduleModel");
+const User = require("../model/userModel");
 /**
  * Create doctor working schedule
  */
@@ -8,7 +8,7 @@ exports.CreateDoctorSchedule = async (req, res, next) => {
   if (!working_time || !doctor_name) {
     return res
       .status(400)
-      .json({ success: false, data: 'Something went wrong' });
+      .json({ success: false, data: "Something went wrong" });
   }
   try {
     const doctor = await User.find({ name: doctor_name }, {});
@@ -19,20 +19,19 @@ exports.CreateDoctorSchedule = async (req, res, next) => {
     });
     return res
       .status(200)
-      .json({ success: true, data: 'Create schedule successfully' });
+      .json({ success: true, data: "Create schedule successfully" });
   } catch (error) {
     console.log(error);
     if (error.code === 11000) {
       return res
-        .status(500)
-        .json({ success: false, data: 'Schedule is already existed' });
+        .status(400)
+        .json({ success: false, data: "Schedule is already existed" });
     }
-    return res
-      .status(500)
-      .json({ success: false, data: 'Something went wrong' });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
+/** View all doctor schedule */
 exports.ViewAllDoctorSchedule = async (req, res, next) => {
   try {
     const allSchedule = await Schedule.find();
@@ -41,10 +40,6 @@ exports.ViewAllDoctorSchedule = async (req, res, next) => {
       data: allSchedule,
     });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, data: 'Something went wrong' });
+    return res.status(500).json({ success: false, data: error });
   }
 };
-
-

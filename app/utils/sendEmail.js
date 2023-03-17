@@ -6,7 +6,7 @@ const sendEmail = async options => {
   const email_template_path = path.join(
     __dirname,
     "..",
-    "views/email-verification.html",
+    `views/${options.template}`,
   );
   const transporter = nodeMailer.createTransport({
     host: process.env.MAIL_HOST,

@@ -1,6 +1,7 @@
 const Medicine = require("../model/medicineModel");
 const cloudinary = require("cloudinary");
 
+/** Add new medicine to the storage */
 exports.AddNewMedicine = async (req, res, next) => {
   const imageUpload = req.file ? req.file : "";
   const { name, description, price, quantity, expiry, manufacturer } = req.body;
@@ -37,12 +38,11 @@ exports.AddNewMedicine = async (req, res, next) => {
       .json({ success: true, data: "Add new medicine successfully" });
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, data: "Something went wrong" });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
+/** Edit medicine information*/
 exports.EditMedicine = async (req, res, next) => {
   const { name, description, price, quantity, expiry, manufacturer } = req.body;
   const imageUpload = req.file ? req.file : "";
@@ -82,12 +82,11 @@ exports.EditMedicine = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    return res
-      .status(500)
-      .json({ success: false, data: "Something went wrong" });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
+/** Delete medicine */
 exports.DeleteMedicine = async (req, res, next) => {
   const id = req.body._id;
   try {
@@ -102,23 +101,24 @@ exports.DeleteMedicine = async (req, res, next) => {
       .status(200)
       .json({ success: true, data: "Delete medicine successfully" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, data: "Something went wrong" });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
+/** Get list of medicine */
 exports.GetAllMedicine = async (req, res, next) => {
   try {
-    const medicines = await Medicine.find();
+    const medicines = await Medicine.find(
+      {},
+      "-description -image -manufacturer",
+    );
     return res.status(200).json({ success: true, data: medicines });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, data: "Something went wrong" });
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
+/** Get medicine detailed information */
 exports.GetMedicineDetails = async (req, res, next) => {
   const id = req.query.id ? req.query.id : "";
   if (!id) {
@@ -128,8 +128,6 @@ exports.GetMedicineDetails = async (req, res, next) => {
     const medicines = await Medicine.findById(id);
     return res.status(200).json({ success: true, data: medicines });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ success: false, data: "Something went wrong" });
+    return res.status(500).json({ success: false, data: error });
   }
 };
