@@ -1,9 +1,14 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const payment = require('../controller/paymentController');
+const payment = require("../controller/paymentController");
+const auth = require("../middleware/auth");
 
-router.post('/new', payment.CreatPayment);
+router.post("/new", auth.isAuthenticatedUser, payment.CreatePayment);
 
-router.get('/detail', payment.GetPaymentDetail);
+router.get("/paypal/execute-payment", payment.PaymentExecute);
+
+router.get("/paypal/cancel-payment", payment.PaymentCancel);
+
+router.get("/detail", auth.isAuthenticatedUser, payment.GetPaymentDetail);
 
 module.exports = router;

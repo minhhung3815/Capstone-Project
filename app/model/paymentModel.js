@@ -1,28 +1,28 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users',
+    ref: "Users",
     required: true,
   },
   appointment_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Appointment',
+    ref: "Appointment",
     required: true,
   },
   amount: {
-    type: Number,
+    type: String,
     required: true,
   },
   currency: {
     type: String,
-    default: 'VND',
+    default: "USD",
   },
   status: {
     type: String,
-    enum: ['pending', 'completed', 'cancel'],
-    default: 'pending',
+    enum: ["pending", "completed"],
+    default: "pending",
   },
   createdAt: {
     type: Date,
@@ -37,4 +37,4 @@ const paymentSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Payment', paymentSchema);
+module.exports = mongoose.model("Payment", paymentSchema);

@@ -8,10 +8,11 @@ exports.isAuthenticatedUser = async (req, res, next) => {
       .json({ success: false, data: "Missing auhtorization header" });
   }
   try {
-    const decoded = jwt.verify(token, proccess.env.JWT_SECRET);
+    const decoded = jwt.verify(token.slice(7), process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
+    console.log(error);
     return res.status(401).json({ success: false, data: "Invalid token" });
   }
 };
@@ -19,12 +20,10 @@ exports.isAuthenticatedUser = async (req, res, next) => {
 exports.authorizeRoles = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          data: `Role: ${req.user.role} is not allowed`,
-        });
+      return res.status(403).json({
+        success: false,
+        data: `Role: ${req.user.role} is not allowed`,
+      });
     }
     next();
   };

@@ -1,11 +1,24 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const specialization = require('../controller/specializationController');
+const specialization = require("../controller/specializationController");
+const auth = require("../middleware/auth");
 
-router
-  .route('/')
-  .get(specialization.GetSpecialization)
-  .post(specialization.CreateNewSpecialization)
-  .delete(specialization.DeleteSpecialization);
+router.get(
+  "/detail",
+  auth.isAuthenticatedUser,
+  specialization.GetSpecialization,
+);
+
+router.post(
+  "/new",
+  auth.isAuthenticatedUser,
+  specialization.CreateNewSpecialization,
+);
+
+router.delete(
+  "/delete",
+  auth.isAuthenticatedUser,
+  specialization.DeleteSpecialization,
+);
 
 module.exports = router;

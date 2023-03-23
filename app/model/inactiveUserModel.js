@@ -9,7 +9,6 @@ const inactiveUserSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, "Please enter your email"],
-    unique: true,
   },
   gender: {
     type: String,
@@ -47,20 +46,15 @@ const inactiveUserSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  },
-  expiredIn: {
-    type: Date,
-    default: () => {
-      return new Date(Date.now() + 10 * 60 * 1000);
-    },
+    expires: 60 * 30,
   },
 });
 
-inactiveUserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
-  this.password = await bcrypt.hash(this.password, 10);
-});
+// inactiveUserSchema.pre("save", async function (next) {
+//   if (!this.isModified("password")) {
+//     next();
+//   }
+//   this.password = await bcrypt.hash(this.password, 10);
+// });
 
 module.exports = mongoose.model("InactiveUsers", inactiveUserSchema);

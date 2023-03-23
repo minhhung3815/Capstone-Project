@@ -1,11 +1,12 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const request = require('../controller/requestController');
+const request = require("../controller/requestController");
+const auth = require("../middleware/auth");
 
 router
-  .route('/')
-  .get(request.GetRequests)
-  .post(request.CreateRequest)
-  .delete(request.DeleteRequests);
+  .route("/")
+  .get(auth.isAuthenticatedUser, request.GetRequests)
+  .post(auth.isAuthenticatedUser, request.CreateRequest)
+  .delete(auth.isAuthenticatedUser, request.DeleteRequests);
 
 module.exports = router;

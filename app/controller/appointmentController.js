@@ -71,7 +71,7 @@ exports.MakeAppointment = async (req, res, next) => {
       .json({ success: false, data: "Please provide information" });
   }
   try {
-    await Appointment.create({
+    const new_appointment = await Appointment.create({
       user_id,
       user_name,
       doctor_id,
@@ -79,9 +79,7 @@ exports.MakeAppointment = async (req, res, next) => {
       appointment_date,
       description,
     });
-    return res
-      .status(200)
-      .json({ success: true, data: "Create a new appointment successfully" });
+    return res.status(200).json({ success: true, data: new_appointment._id });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ success: false, data: error });
@@ -97,12 +95,9 @@ exports.UpdateAppointment = async (req, res, next) => {
       .json({ success: false, data: "Something went wrong" });
   }
   try {
-    const appointment = await Appointment.findByIdAndUpdate(
-      { _id: appointment_id },
-      {
-        status: status,
-      },
-    );
+    const appointment = await Appointment.findByIdAndUpdate(appointment_id, {
+      status: status,
+    });
     if (!appointment) {
       return res
         .status(404)
