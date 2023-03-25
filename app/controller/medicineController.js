@@ -44,6 +44,7 @@ exports.AddNewMedicine = async (req, res, next) => {
 
 /** Edit medicine information*/
 exports.EditMedicine = async (req, res, next) => {
+  const { id } = req.params;
   const { name, description, price, quantity, expiry, manufacturer } = req.body;
   const imageUpload = req.file ? req.file : "";
   let image = { public_id: "", url: "" };
@@ -61,7 +62,7 @@ exports.EditMedicine = async (req, res, next) => {
     }
 
     await Medicine.findByIdAndUpdate(
-      req.body._id,
+      id,
       {
         name,
         description,
@@ -88,7 +89,7 @@ exports.EditMedicine = async (req, res, next) => {
 
 /** Delete medicine */
 exports.DeleteMedicine = async (req, res, next) => {
-  const id = req.body._id;
+  const { id } = req.params;
   try {
     const medicine = await Medicine.findByIdAndRemove(id);
     if (!medicine) {
@@ -120,7 +121,7 @@ exports.GetAllMedicine = async (req, res, next) => {
 
 /** Get medicine detailed information */
 exports.GetMedicineDetails = async (req, res, next) => {
-  const id = req.query.id ? req.query.id : "";
+  const id = req.params.id ? req.params.id : "";
   if (!id) {
     return res.status(400).json({ success: false, data: "Invalid request" });
   }

@@ -1,13 +1,23 @@
 const Specialization = require("../model/specializationModel");
 
+exports.GetAllSpecialization = async (req, res, next) => {
+  try {
+    const specialization = await Specialization.find();
+    return res.status(200).json({ success: true, data: specialization });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: error });
+  }
+};
+
 exports.GetSpecialization = async (req, res, next) => {
   const id = req.query.id ? req.query.id : "";
   try {
-    if (!id) {
-      const specialization = await Specialization.find();
-      return res.status(200).json({ success: true, data: specialization });
-    }
     const specialization = await Specialization.findById(id);
+    if (!specialization) {
+      return res
+        .status(404)
+        .json({ success: false, data: "Invalid specialization id" });
+    }
     return res.status(200).json({ success: true, data: specialization });
   } catch (error) {
     return res.status(500).json({ success: false, data: error });
@@ -35,7 +45,7 @@ exports.CreateNewSpecialization = async (req, res, next) => {
 };
 
 exports.DeleteSpecialization = async (req, res, next) => {
-  const id = req.body.id ? req.body.id : "";
+  const id = req.params.id ? req.params.id : "";
   if (!id) {
     return res
       .status(400)

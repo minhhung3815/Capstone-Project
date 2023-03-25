@@ -21,8 +21,6 @@ router.use("/schedule", scheduleRouter);
 
 router.use("/specialization", specializationRouter);
 
-router.use("/statistic", roleRouter);
-
 router.use("/payment", paymentRouter);
 
 router.use("/medicine", medicineRouter);

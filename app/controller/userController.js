@@ -190,7 +190,7 @@ exports.DeleteDoctor = async (req, res, next) => {
   }
   try {
     const user = await User.findOneAndDelete({ _id: id });
-    const specialization = await Specialization.findByIdAndDelete({
+    const specialization = await Specialization.findOneAndDelete({
       doctor_id: id,
     });
     if (!user || !specialization) {
@@ -238,6 +238,7 @@ exports.Login = async (req, res, next) => {
 
 /** Register account (user)*/
 exports.Register = async (req, res, next) => {
+  console.log(process.env.MAIL_VERIFICATION);
   const fileUpload = req.file ? req.file : "";
   const name = req.body.name ? req.body.name : "";
   const email = req.body.email ? req.body.email : "";
@@ -268,6 +269,7 @@ exports.Register = async (req, res, next) => {
   const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
     expiresIn: process.env.MAIL_VERIFICATION_EXPIRE,
   });
+
   const verificationUrl = `${req.protocol}://${req.get(
     "host",
   )}/user/verification/${token}`;

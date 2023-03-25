@@ -14,7 +14,7 @@ exports.ViewAllAppointment = async (req, res, next) => {
 /** View data of specific appointment */
 exports.ViewSpecificAppointment = async (req, res, next) => {
   try {
-    const appointment = await Appointment.findById({ _id: req.params.id });
+    const appointment = await Appointment.findById(req.params.id);
     if (!appointment) {
       return res
         .status(404)
@@ -29,7 +29,7 @@ exports.ViewSpecificAppointment = async (req, res, next) => {
 /** User views all their appointments */
 exports.UserViewAllAppointments = async (req, res, next) => {
   try {
-    const appointments = await Appointment.findById({ user_id: req.params.id });
+    const appointments = await Appointment.find({ user_id: req.params.id });
     return res.status(200).json({ success: true, data: appointments });
   } catch (error) {
     return res.status(500).json({ success: false, data: error });
@@ -39,7 +39,7 @@ exports.UserViewAllAppointments = async (req, res, next) => {
 /** Doctor views all their appointments */
 exports.DoctorViewAllAppointments = async (req, res, next) => {
   try {
-    const appointments = await Appointment.findById({
+    const appointments = await Appointment.find({
       doctor_id: req.params.id,
     });
     return res.status(200).json({ success: true, data: appointments });
@@ -88,7 +88,8 @@ exports.MakeAppointment = async (req, res, next) => {
 
 /** Admin updates appointment status */
 exports.UpdateAppointment = async (req, res, next) => {
-  const { status, appointment_id } = req.body;
+  const { appointment_id } = req.params;
+  const { status } = req.body;
   if (!status || !appointment_id) {
     return res
       .status(400)

@@ -1,13 +1,9 @@
 const Payment = require("../model/paymentModel");
 const Appointment = require("../model/appointmentModel");
-const paypal = require("../utils/paypalConfig");
-
-
+const paypal = require("paypal-rest-sdk");
 
 exports.CreatePayment = async (req, res, next) => {
   try {
-    // console.log(process.env.PAYPAL_CLIENT_ID, process.env.PAYPAL_CLIENT_SECRET);
-    const userId = req.user.id;
     const { appointmentId, amount } = req.body;
     if (!appointmentId || !amount) {
       return res
@@ -39,8 +35,8 @@ exports.CreatePayment = async (req, res, next) => {
         },
       ],
       redirect_urls: {
-        return_url: "http://localhost:8098/paypal/execute-payment",
-        cancel_url: "http://localhost:8098/paypal/cancel-payment",
+        return_url: "http://localhost:8098/payment/paypal/execute-payment",
+        cancel_url: "http://localhost:8098/payment/paypal/cancel-payment",
       },
     };
 
@@ -51,11 +47,10 @@ exports.CreatePayment = async (req, res, next) => {
         const paymentData = new Payment({
           paymentId: payment.id,
           appointment_id: appointmentId,
-          user_id: userId,
           amount: amount,
         });
         await paymentData.save();
-
+        console.log(payment);
         const approvalUrl = payment.links.find(
           link => link.rel === "approval_url",
         ).href;
@@ -72,32 +67,49 @@ exports.PaymentExecute = async (req, res, next) => {
     const { paymentId, PayerID } = req.query;
 
     // Retrieve payment from database
-    const payment = await Payment.findOne({ paymentId: paymentId });
-
+    const executed_payment = await Payment.findOne({ paymentId: paymentId });
+    if (!executed_payment) {
+      return res.status(400).json({ success: false, data: "Invalid payment" });
+    }
     // Execute payment
     const executeReq = { payer_id: PayerID };
-    paypal.payment.execute(paymentId, executeReq, async (err, payment) => {
-      if (err) {
-        res.status(500).send(err);
+    paypal.payment.execute(paymentId, executeReq, async (error, payment) => {
+      if (error) {
+        return res.status(500).json({ success: false, data: error });
       } else {
-        // Update appointment status in database
-        // const appointment = await Appointment.findById(payment.appointmentId);
-        // // appointment.status = "confirmed";
-        // await appointment.save();
+        const appointment = await Appointment.findByIdAndUpdate(
+          executed_payment.appointment_id,
+          {
+            status: "finished",
+            payment_id: payment._id,
+          },
+        );
+        if (!appointment) {
+          return res
+            .status(400)
+            .json({ success: false, data: "Invalid appointment" });
+        }
+        await appointment.save();
 
-        // Render success page
         return res
           .status(200)
           .json({ success: true, data: "Successfully make appointment" });
       }
     });
-  } catch (err) {
-    res.status(400).send(err);
+  } catch (error) {
+    return res.status(500).json({ success: false, data: error });
   }
 };
 
 exports.PaymentCancel = async (req, res, next) => {
-  return res.status(200).json({ success: true, data: "Payment is cancelled" });
+  try {
+    console.log(req.query);
+    return res
+      .status(200)
+      .json({ success: true, data: "Payment is cancelled" });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: error });
+  }
 };
 
 exports.GetPaymentDetail = async (req, res, next) => {

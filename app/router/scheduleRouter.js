@@ -3,9 +3,31 @@ const router = express.Router();
 const schedule = require("../controller/scheduleController");
 const auth = require("../middleware/auth");
 
-router
-  .route("/")
-  .get(auth.isAuthenticatedUser, schedule.ViewAllDoctorSchedule)
-  .post(auth.isAuthenticatedUser, schedule.CreateDoctorSchedule);
+/** Get all doctor schedule */
+router.get("/all", auth.isAuthenticatedUser, schedule.ViewAllSchedule);
+
+/** Create new schedule */
+router.post("/new", auth.isAuthenticatedUser, schedule.CreateDoctorSchedule);
+
+/** Get doctor schedule */
+router.get(
+  "/doctor/:id",
+  auth.isAuthenticatedUser,
+  schedule.ViewSpecificSchedule,
+);
+
+/** Delete doctor schedule */
+router.delete(
+  "/delete/:id",
+  auth.isAuthenticatedUser,
+  schedule.DeleteDoctorSchedule,
+);
+
+/** Update doctor schedule */
+router.put(
+  "/update/:id",
+  auth.isAuthenticatedUser,
+  schedule.UpdateDoctorSchedule,
+);
 
 module.exports = router;

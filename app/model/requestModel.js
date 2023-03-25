@@ -15,8 +15,9 @@ const requestSchema = new mongoose.Schema({
     required: true,
   },
   accepted: {
-    type: Boolean,
-    default: false,
+    type: String,
+    enum: ["pending", "accepted", "unaccepted"],
+    default: "pending",
   },
 });
 

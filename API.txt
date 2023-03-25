@@ -1,31 +1,187 @@
-path: /api/v1/account/register
-method: POST
-actor: manager, patient, doctor
-description: user create new account(patient role)
+DOMAIN: https://clinic-project-alp.vercel.app/
 
-path: /api/v1/account/login
-method: POST
-actor: manager, patient, doctor
-description: user login to the page 
+**************----------USER API------------*****************
 
-path: /api/v1/admin/users
+path: /user/register
 method: POST
-actor: manager
-description: admin create a new user
+description: User create new account
 
-path: /api/v1/admin/users?role=${role_id}
+path: /user/verification/:token
 method: GET
-actor: manager
-description: admin view all users who have the exact role_id
+description: User verify email
 
-path: /api/v1/admin/users?id=${user_id}
+path: /user/login
+method: POST
+description: User login
+
+path: /user/create/account
+method: POST
+description: Admin create a new user and admin
+
+path: /user/create/doctor
+method: POST
+description: Admin create a new doctor
+
+path: /user/account/:role
 method: GET
-actor: manager
-description: admin view a user profile
+description: Admin get all accounts
 
-path: /api/v1/admin/users?id=${user_id}
+path: /user/account/detail/:id
+method: GET
+description: Get user and admin detail information
+
+path: /user/doctor/detail/:id
+method: GET
+description: Get doctor detail information
+
+path: /user/remove/account/:id
 method: DELETE
-actor: manager
-description: admin delete user
+description: Delete user and admin detail information
 
-/api/v1/admin/requests
+path: /user/remove/doctor/:id
+method: DELETE
+description: Delete doctor detail information
+
+**************----------REQUEST API------------*****************
+path: /request/all
+method: GET
+description: Get all requests
+
+path: /request/new
+method: POST
+description: Create new requests
+
+path: /request/edit/:id
+method: PUT
+description: Edit request
+
+path: /request/delete
+method: DELETE
+description: Delete request
+
+path: /request/user/requests
+method: GET
+description: Get all user's request
+
+path: /request/specific/requests
+method: GET
+description: Get specific request
+
+**************----------APPOINTMENT API------------*****************
+path: /appointment/all
+method: GET
+description: Get all appointments
+
+path: /appointment/new
+method: POST
+description: Make a new appointment
+
+path: /appointment/update/status
+method: PUT
+description: Update an appointment's status
+
+path: /appointment/specific/:id
+method: GET
+description: Get a specific appointment
+
+path: /appointment/user/:id
+method: GET
+description: Get all user's appointments
+
+path: /appointment/doctor/:id
+method: GET
+description: Get all doctor's appointments
+
+**************----------SCHEDULE API------------*****************
+path: /schedule/all
+method: GET
+description: Get all doctor's schedule
+
+path: /schedule/new
+method: POST
+description: Make a new doctor's schedule
+
+path: /schedule/update/:id
+method: PUT
+description: Update an doctor's schedule
+
+path: /schedule/doctor/:id
+method: GET
+description: Get a specific schedule
+
+path: /schedule/delete/:id
+method: DELETE
+description: Delete doctor's schedule
+
+
+**************----------SPECIALIZATION API------------*****************
+path: /specialization/all
+method: GET
+description: Get all doctor's specialization
+
+path: /specialization/detail/:id
+method: GET
+description: Get a doctor's specialization
+
+path: /specialization/new
+method: POST
+description: Create new doctor's specialization
+
+path: /specialization/delete/:id
+method: DELETE
+description: Delete a doctor's specialization
+
+**************----------PAYMENT API------------*****************
+path: /payment/new
+method: POST
+description: Make a new payment
+
+path: /payment/paypal/execute-payment
+method: GET
+description: Get successful paypal transaction
+
+path: /payment/paypal/cancel-payment
+method: GET
+description: Get cancelled paypal transaction
+
+**************----------MEDICINE API------------*****************
+path: /medicine/new
+method: POST
+description: Make a new payment
+
+path: /medicine/all
+method: GET
+description: Get list of medicines
+
+path: /medicine/detail/:id
+method: GET
+description: Get a specific medicine
+
+path: /medicine/edit/:id
+method: PUT
+description: Edit medicine
+
+path: /medicine/delete/:id
+method: DELETE
+description: Edit medicine
+
+**************----------PRESCRIPTION API------------*****************
+path: /prescription/list/all
+method: GET
+description: Get all prescription
+
+path: /prescription/list/user/:id
+method: GET
+description: Get all prescription based on user id
+
+path: /prescription/list/doctor/:id
+method: GET
+description: Get all prescription based on doctor id
+
+path: /prescription/list/detail/:id
+method: GET
+description: Get detailed prescription
+
+path: /prescription/new
+method: POST
+description: Create prescription

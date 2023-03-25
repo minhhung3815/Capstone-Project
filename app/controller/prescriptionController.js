@@ -30,7 +30,7 @@ exports.GetAllUserPrescription = async (req, res, next) => {
   }
 };
 
-/** Get all prescription based on user id */
+/** Get all prescription based on doctor id */
 exports.GetAllDoctorPrescription = async (req, res, next) => {
   const { id } = req.params;
   if (!id) {
@@ -133,6 +133,6 @@ exports.CreatePrescription = async (req, res, next) => {
 exports.SendPrescription = async (req, res, next) => {
   const options = {
     template: process.env.MAIL_PRESCRIPTION,
-    subject: "Patient Prescription"
+    subject: "Patient Prescription",
   };
 };

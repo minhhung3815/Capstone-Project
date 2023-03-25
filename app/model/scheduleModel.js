@@ -1,9 +1,9 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const scheduleSchema = new mongoose.Schema({
   doctor_id: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Users',
+    ref: "Users",
     required: true,
     unique: true,
   },
@@ -15,10 +15,14 @@ const scheduleSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-module.exports = mongoose.model('Schedule', scheduleSchema);
+module.exports = mongoose.model("Schedule", scheduleSchema);

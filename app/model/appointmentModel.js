@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const appointmentSchema = new mongoose.Schema({
   user_name: {
@@ -7,12 +7,12 @@ const appointmentSchema = new mongoose.Schema({
   },
   user_id: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Users',
+    ref: "Users",
     required: true,
   },
   doctor_id: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Users',
+    ref: "Users",
     required: true,
   },
   doctor_name: {
@@ -35,12 +35,12 @@ const appointmentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'cancelled', 'processing', 'finished'],
-    default: 'pending',
+    enum: ["waiting", "cancelled", "finished"],
+    default: "waiting",
   },
   payment_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Payment',
+    ref: "Payment",
   },
   createdAt: {
     type: Date,
@@ -48,4 +48,4 @@ const appointmentSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Appointment', appointmentSchema);
+module.exports = mongoose.model("Appointment", appointmentSchema);
