@@ -232,6 +232,7 @@ exports.Login = async (req, res, next) => {
     }
     sendToken(user, 200, res);
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ success: false, data: error });
   }
 };
