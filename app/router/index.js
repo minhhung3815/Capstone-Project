@@ -25,6 +25,8 @@ router.use("/payment", paymentRouter);
 
 router.use("/medicine", medicineRouter);
 
+router.use("/role", roleRouter);
+
 router.use("/prescription", prescriptionRouter);
 
 router.use(error404Router);

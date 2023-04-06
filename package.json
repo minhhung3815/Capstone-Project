@@ -41,6 +41,6 @@
     "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.22"
   }
 }
