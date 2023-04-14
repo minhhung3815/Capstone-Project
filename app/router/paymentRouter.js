@@ -15,4 +15,10 @@ router.get("/paypal/cancel-payment", payment.PaymentCancel);
 /** Get payment detail */
 router.get("/detail/:id", auth.isAuthenticatedUser, payment.GetPaymentDetail);
 
+/** Get all payment */
+router.get("/all", auth.isAuthenticatedUser, payment.GetAllPayment);
+
+/** Get payment detail */
+router.get("/user", auth.isAuthenticatedUser, payment.GetUserPayment);
+
 module.exports = router;

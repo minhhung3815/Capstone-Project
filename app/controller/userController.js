@@ -3,7 +3,7 @@ const InactiveUser = require("../model/inactiveUserModel");
 const Specialization = require("../model/specializationModel");
 const cloudinary = require("cloudinary");
 const sendToken = require("../utils/sendToken");
-const sendEmail = require("../utils/sendEmail");
+const { VerificationMail } = require("../utils/sendEmail");
 const { hashedPassword } = require("../utils/hashPassword");
 const jwt = require("jsonwebtoken");
 
@@ -239,7 +239,6 @@ exports.Login = async (req, res, next) => {
 
 /** Register account (user)*/
 exports.Register = async (req, res, next) => {
-  console.log(process.env.MAIL_VERIFICATION);
   const fileUpload = req.file ? req.file : "";
   const name = req.body.name ? req.body.name : "";
   const email = req.body.email ? req.body.email : "";
@@ -266,7 +265,6 @@ exports.Register = async (req, res, next) => {
     });
   }
   const template = process.env.MAIL_VERIFICATION;
-  const subject = "Email Verification";
   const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
     expiresIn: process.env.MAIL_VERIFICATION_EXPIRE,
   });
@@ -274,12 +272,11 @@ exports.Register = async (req, res, next) => {
   const verificationUrl = `${req.protocol}://${req.get(
     "host",
   )}/user/verification/${token}`;
-  const data =
-    "Thanks for starting the new account creation process. \
-      We want to make sure it's really you. Please click the button below \
-      to verify your email address. If you do not want to create an account, \
-      you can ignore this message.";
-  const options = { email, subject, data, verificationUrl, template };
+  const verification_email = new VerificationMail(
+    email,
+    verificationUrl,
+    template,
+  );
   try {
     const avatar = fileUpload
       ? await cloudinary.v2.uploader.upload(fileUpload.path, {
@@ -289,7 +286,7 @@ exports.Register = async (req, res, next) => {
         })
       : { public_id: "", secure_url: "" };
     await Promise.all([
-      sendEmail(options),
+      verification_email.sendEmail(),
       InactiveUser.create({
         name,
         email,

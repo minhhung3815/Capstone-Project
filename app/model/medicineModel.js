@@ -27,9 +27,11 @@ const medicineSchema = new mongoose.Schema({
   image: {
     public_id: {
       type: String,
+      default: ''
     },
     url: {
       type: String,
+      default: ''
     },
   },
 });

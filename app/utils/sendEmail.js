@@ -2,45 +2,97 @@ const nodeMailer = require("nodemailer");
 const fs = require("fs");
 const path = require("path");
 
-const html_template = async (template, options) => {
-  if (options.template === process.env.MAIL_VERIFICATION) {
-    return template
-      .replace("{{subject}}", options.subject)
-      .replace("{{data}}", options.data)
-      .replace("{{verificationUrl}}", options.verificationUrl)
-      .replace("{{email}}", options.email);
-  } else if (options.template === process.env.MAIL_PRESCRIPTION) {
-  } else if (options.template === process.env.MAIL_FORGOT_PASSWORD) {
-  } else if (options.template === process.env.MAIL_APPOINTMENT) {
-  } else {
+class Mail {
+  constructor(email) {
+    this.email = email;
   }
-};
+  html_template() {}
+  async sendEmail(mailOptions) {
+    const transporter = nodeMailer.createTransport({
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
+      service: process.env.MAIL_SERVICE,
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASSWORD,
+      },
+    });
+    await transporter.sendMail(mailOptions);
+  }
+}
 
-const sendEmail = async options => {
-  const email_template_path = path.join(
-    __dirname,
-    "..",
-    `views/${options.template}`,
-  );
-  const transporter = nodeMailer.createTransport({
-    host: process.env.MAIL_HOST,
-    port: process.env.MAIL_PORT,
-    service: process.env.MAIL_SERVICE,
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASSWORD,
-    },
-  });
-  const template = fs.readFileSync(email_template_path, "utf-8");
-  const html = await html_template(template, options);
-  const mailOptions = {
-    from: { name: "Clinic Management", address: process.env.MAIL_USER },
-    to: options.email,
-    subject: options.subject,
-    html: html,
-  };
+class VerificationMail extends Mail {
+  constructor(email, verificationUrl, template) {
+    super(email);
+    this.subject = "Email Verification";
+    this.data =
+      "Thanks for starting the new account creation process. \
+    We want to make sure it's really you. Please click the button below \
+    to verify your email address. If you do not want to create an account, \
+    you can ignore this message.";
+    this.template = template;
+    this.verificationUrl = verificationUrl;
+  }
 
-  await transporter.sendMail(mailOptions);
-};
+  html_template(template) {
+    return template
+      .replace("{{subject}}", this.subject)
+      .replace("{{data}}", this.data)
+      .replace("{{verificationUrl}}", this.verificationUrl)
+      .replace("{{email}}", this.email);
+  }
 
-module.exports = sendEmail;
+  async sendEmail() {
+    const email_template_path = path.join(
+      process.cwd(),
+      "app",
+      `views/${this.template}`,
+    );
+    const template = fs.readFileSync(email_template_path, "utf-8");
+    const html = this.html_template(template);
+    const mailOptions = {
+      from: { name: "Clinic Management", address: process.env.MAIL_USER },
+      to: this.email,
+      subject: this.subject,
+      html: html,
+    };
+    super.sendEmail(mailOptions);
+  }
+}
+
+class AppointmentMail extends Mail {
+  constructor(email, template, info) {
+    super(email);
+    this.subject = "Remind Email";
+    this.template = template;
+    this.info = info;
+  }
+
+  html_template(template) {
+    return template
+      .replace("{{Subject}}", this.subject)
+      .replace("{{PatientName}}", this.info.user_name)
+      .replace("{{DoctorName}}", this.info.doctor_name)
+      .replace("{{AppointmentDate}}", this.info.appointment_date.date)
+      .replace("{{AppointmentTime}}", this.info.appointment_date.startTime);
+  }
+
+  async sendEmail() {
+    const email_template_path = path.join(
+      process.cwd(),
+      "..",
+      `views/${this.template}`,
+    );
+    const template = fs.readFileSync(email_template_path, "utf-8");
+    const html = this.html_template(template);
+    const mailOptions = {
+      from: { name: "Clinic Management", address: process.env.MAIL_USER },
+      to: this.email,
+      subject: this.subject,
+      html: html,
+    };
+    super.sendEmail(mailOptions);
+  }
+}
+
+module.exports = { Mail, VerificationMail, AppointmentMail };

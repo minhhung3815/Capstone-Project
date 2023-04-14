@@ -37,4 +37,18 @@ router.get(
   appointment.DoctorViewAllAppointments,
 );
 
+/** Patient cancel appointment */
+router.put(
+  "/cancel/:id",
+  auth.isAuthenticatedUser,
+  appointment.CancelAppointment,
+);
+
+/** Patient update appointment */
+router.put(
+  "/update/:id",
+  auth.isAuthenticatedUser,
+  appointment.UpdateNewAppointment,
+);
+
 module.exports = router;

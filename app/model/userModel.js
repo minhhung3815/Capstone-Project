@@ -1,15 +1,15 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please enter your name'],
+    required: [true, "Please enter your name"],
   },
   email: {
     type: String,
-    required: [true, 'Please enter your email'],
+    required: [true, "Please enter your email"],
     unique: true,
   },
   gender: {
@@ -38,7 +38,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    ref: 'Role',
+    ref: "Role",
+    default: "User",
     required: true,
   },
   createdAt: {
@@ -74,4 +75,4 @@ userSchema.methods.comparePassword = async (
   return await bcrypt.compare(enteredPassword, hashedPassword);
 };
 
-module.exports = mongoose.model('Users', userSchema);
+module.exports = mongoose.model("Users", userSchema);

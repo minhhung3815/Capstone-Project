@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema({
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Appointment",
+    required: true,
+  },
   appointment_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Appointment",
@@ -28,6 +33,10 @@ const paymentSchema = new mongoose.Schema({
     default: Date.now,
   },
   paymentId: {
+    type: String,
+    required: true,
+  },
+  paymentToken: {
     type: String,
     required: true,
   },

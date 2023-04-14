@@ -24,8 +24,12 @@ const appointmentSchema = new mongoose.Schema({
       type: Date,
       required: true,
     },
-    time: {
-      type: Array,
+    startTime: {
+      type: String,
+      required: true,
+    },
+    endTime: {
+      type: String,
       required: true,
     },
   },
@@ -41,6 +45,9 @@ const appointmentSchema = new mongoose.Schema({
   payment_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Payment",
+  },
+  notificationJob: {
+    type: String,
   },
   createdAt: {
     type: Date,
