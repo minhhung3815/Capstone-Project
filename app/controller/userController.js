@@ -371,7 +371,7 @@ exports.GetUser = async (req, res, next) => {
     if (role !== "doctor" && role !== "manager" && role !== "user") {
       return res.status(400).json({ success: false, data: "Undefined role" });
     }
-    const allUser = await User.find({ role: role }, "name email gender avatar");
+    const allUser = await User.find({ role: role }, "-password");
     return res.status(200).json({ success: true, data: allUser });
   } catch (error) {
     return res.status(500).json({ success: false, data: error });
@@ -410,7 +410,7 @@ exports.GetDoctorDetail = async (req, res, next) => {
   }
   try {
     const user = await Specialization.findOne({ doctor_id: id })
-      .populate("doctor_id")
+      .populate("doctor_id", "-password")
       .exec();
 
     if (!user) {
@@ -449,7 +449,7 @@ exports.UpdateProfile = async (req, res, next) => {
 
       await cloudinary.v2.uploader.destroy(userImage);
 
-      const avatar = await cloudinary.v2.uploader.upload(fileUpload, {
+      const avatar = await cloudinary.v2.uploader.upload(fileUpload.path, {
         folder: "avatars",
         width: 150,
         crop: "scale",
@@ -471,6 +471,64 @@ exports.UpdateProfile = async (req, res, next) => {
       .status(200)
       .json({ success: true, data: "Update profile successfully" });
   } catch (error) {
+    return res
+      .status(500)
+      .json({ sucess: false, data: "Something went wrong" });
+  }
+};
+
+/** Edit user profile */
+exports.EditUserProfile = async (req, res, next) => {
+  console.log(req.file);
+  const fileUpload = req.file ? req.file : "";
+  const {
+    email = "",
+    name = "",
+    phone_number = "",
+    gender = "",
+    date_of_birth = "",
+  } = req.body;
+  const userId = req.params.id;
+  if (!email || !name || !phone_number || !gender || !date_of_birth) {
+    return res.status(400).json({ success: false, data: "Bad request" });
+  }
+  const userData = {
+    name,
+    phone_number,
+    gender,
+    date_of_birth: new Date(date_of_birth),
+  };
+  try {
+    if (fileUpload) {
+      const user = await User.findById(userId);
+
+      const userImage = user.avatar.public_id;
+
+      await cloudinary.v2.uploader.destroy(userImage);
+
+      const avatar = await cloudinary.v2.uploader.upload(fileUpload.path, {
+        folder: "avatars",
+        width: 150,
+        crop: "scale",
+      });
+
+      userData.avatar = {
+        public_id: avatar.public_id,
+        url: avatar.secure_url,
+      };
+    }
+
+    await User.findByIdAndUpdate(userId, userData, {
+      new: true,
+      runValidators: true,
+      useFindAndModify: true,
+    });
+
+    return res
+      .status(200)
+      .json({ success: true, data: "Update profile successfully" });
+  } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ sucess: false, data: "Something went wrong" });

@@ -35,8 +35,12 @@ exports.CreatePayment = async (req, res, next) => {
         },
       ],
       redirect_urls: {
-        return_url: "http://localhost:8098/payment/paypal/execute-payment",
-        cancel_url: "http://localhost:8098/payment/paypal/cancel-payment",
+        return_url: `${req.protocol}://${req.get(
+          "host",
+        )}payment/paypal/execute-payment`,
+        cancel_url: `${req.protocol}://${req.get(
+          "host",
+        )}payment/paypal/cancel-payment`,
       },
     };
 

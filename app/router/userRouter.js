@@ -13,6 +13,22 @@ router.post(
   user.AddNewUserAndAdmin,
 );
 
+/** Create new user account - ADMIN */
+router.put(
+  "/update/profile",
+  auth.isAuthenticatedUser,
+  multer.single("image"),
+  user.UpdateProfile,
+);
+
+router.put(
+  "/edit/user/:id",
+  auth.isAuthenticatedUser,
+  multer.single("image"),
+  user.EditUserProfile,
+);
+
+/** Create new doctor */
 router.post(
   "/create/doctor",
   auth.isAuthenticatedUser,
@@ -51,7 +67,7 @@ router.delete(
   user.DeleteDoctor,
 );
 
-/** Create new account as user role */
+/** User register */
 router.post(
   "/register",
   multer.single("image"),

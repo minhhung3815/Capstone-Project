@@ -79,6 +79,9 @@ exports.MakeAppointment = async (req, res, next) => {
       appointment_date,
       description,
     });
+    // const now = new Date();
+
+    // const setTime = new Date(now.getTime() + 60 * 1000);
     const appointmentDate = new Date(appointment_date.date);
     const notificationTime = new Date(
       appointmentDate.getTime() - 2 * 24 * 3600 * 1000,
@@ -89,13 +92,17 @@ exports.MakeAppointment = async (req, res, next) => {
       remind_name,
       notificationTime,
       async () => {
-        const template = process.env.MAIL_APPOINTMENT;
-        const remind_mail = new AppointmentMail(
-          req.user.email,
-          template,
-          req.body,
-        );
-        await remind_mail.sendEmail();
+        try {
+          const template = process.env.MAIL_APPOINTMENT;
+          const remind_mail = new AppointmentMail(
+            req.user.email,
+            template,
+            req.body,
+          );
+          await remind_mail.sendEmail();
+        } catch (error) {
+          return res.status(500).json({ success: false, data: error });
+        }
       },
     );
     if (notificationJob) {
@@ -175,7 +182,6 @@ exports.UpdateNewAppointment = async (req, res, next) => {
     }
     const appointmentJob = schedule.scheduledJobs[appointment.notificationJob];
     if (appointmentJob) {
-      console.log("ccc");
       appointmentJob.cancel();
     }
     const appointmentDate = new Date(appointment_date.date);

@@ -80,7 +80,7 @@ class AppointmentMail extends Mail {
   async sendEmail() {
     const email_template_path = path.join(
       process.cwd(),
-      "..",
+      "app",
       `views/${this.template}`,
     );
     const template = fs.readFileSync(email_template_path, "utf-8");
