@@ -6,13 +6,13 @@ const sendToken = async (user, statusCode, res) => {
   await user.save();
   const options = {
     expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-    domain: "vercel.app",
+    domain: "frontend-clinic-iota.vercel.app",
     httpOnly: true,
     secure: true,
   };
 
   res.cookie("jwt", refreshToken, options);
-
+  console.log("Cookie is set");
   res.status(statusCode).json({
     success: true,
     role: user?.role,
