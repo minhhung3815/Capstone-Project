@@ -326,7 +326,7 @@ exports.Register = async (req, res, next) => {
 exports.EmailVerificationToken = async (req, res, next) => {
   const { token } = req.params;
   try {
-    jwt.verify(token, process.env.JWT_SECRET);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const user = await InactiveUser.findOneAndDelete({ token });
     if (!user) {
       return res.status(400).json({ success: false, data: "Invalid token" });
