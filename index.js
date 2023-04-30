@@ -35,11 +35,25 @@ app.use(
       "http://localhost:3000",
       "https://frontend-clinic-iota.vercel.app",
     ],
+    credentials: true,
   }),
 );
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(router);
+
+__dirname = path.resolve();
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "/frontend/build")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.send("Server is Running! 🚀");
+  });
+}
 
 app.listen(port, err => {
   if (err) {
