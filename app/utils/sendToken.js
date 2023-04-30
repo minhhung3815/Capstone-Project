@@ -1,6 +1,6 @@
 const sendToken = async (user, statusCode, res) => {
-  const accessToken = user.getJWTToken();
-  const refreshToken = user.getRefreshToken();
+  const accessToken = await user.getJWTToken();
+  const refreshToken = await user.getRefreshToken();
 
   user.refreshToken = refreshToken;
   await user.save();
