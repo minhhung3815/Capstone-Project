@@ -10,7 +10,7 @@ const sendToken = async (user, statusCode, res) => {
     ),
     domain: "vercel.app",
     httpOnly: true ,
-    sercue: false,
+    sercure: true,
   };
 
   res.cookie("jwt", refreshToken, options);
