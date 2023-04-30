@@ -7,6 +7,7 @@ const app = express();
 const paypal = require("paypal-rest-sdk");
 const cloudinary = require("cloudinary");
 const cookieParser = require("cookie-parser");
+const path = require("path");
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({ path: "config.env" });
