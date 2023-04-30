@@ -234,7 +234,10 @@ exports.Login = async (req, res, next) => {
     await user.save();
     const options = {
       expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      domain: "frontend-clinic-iota.vercel.app",
+      domain:
+        process.env.NODE_ENV === "development"
+          ? "localhost"
+          : "frontend-clinic-iota.vercel.app",
       httpOnly: true,
       secure: true,
     };

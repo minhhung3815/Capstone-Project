@@ -7,6 +7,7 @@ const app = express();
 const paypal = require("paypal-rest-sdk");
 const cloudinary = require("cloudinary");
 const cookieParser = require("cookie-parser");
+const cookie = require("cookie-parser");
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({ path: "config.env" });
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Credentials", true);
   next();
 });
+app.use(cookieParser());
 app.use(
   cors({
     origin: [
@@ -38,7 +40,6 @@ app.use(
 );
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(cookieParser());
 app.use(router);
 
 app.listen(port, err => {
