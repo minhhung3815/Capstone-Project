@@ -32,7 +32,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://frontend-clinic-iota.vercel.app/login",
+      "https://frontend-clinic-iota.vercel.app",
     ],
   }),
 );

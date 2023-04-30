@@ -10,9 +10,7 @@ const sendToken = async (user, statusCode, res) => {
     httpOnly: true,
     secure: true,
   };
-
-  res.cookie("jwt", "jklashfkjsfhakjfsahkjsfahksfah", options);
-  console.log("Cookie is set");
+  res.cookie("jwt", refreshToken, options);
   res.status(statusCode).json({
     success: true,
     role: user?.role,

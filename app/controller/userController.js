@@ -227,7 +227,23 @@ exports.Login = async (req, res, next) => {
         data: "Password is incorrect",
       });
     }
-    sendToken(user, 200, res);
+    const accessToken = await user.getJWTToken();
+    const refreshToken = await user.getRefreshToken();
+
+    user.refreshToken = refreshToken;
+    await user.save();
+    const options = {
+      expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+      domain: "frontend-clinic-iota.vercel.app",
+      httpOnly: true,
+      secure: true,
+    };
+    res.cookie("jwt", refreshToken, options);
+    return res.status(200).json({
+      success: true,
+      role: user?.role,
+      accessToken: accessToken,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ success: false, data: error });
