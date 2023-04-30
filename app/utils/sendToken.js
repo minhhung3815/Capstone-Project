@@ -5,11 +5,9 @@ const sendToken = async (user, statusCode, res) => {
   user.refreshToken = refreshToken;
   await user.save();
   const options = {
-    expires: new Date(
-      Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000,
-    ),
+    expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
     domain: "vercel.app",
-    httpOnly: true ,
+    httpOnly: true,
     sercure: true,
   };
 
