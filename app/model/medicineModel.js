@@ -14,7 +14,6 @@ const medicineSchema = new mongoose.Schema({
   },
   quantity: {
     type: Number,
-    required: true,
   },
   expiry: {
     type: Date,
@@ -23,16 +22,6 @@ const medicineSchema = new mongoose.Schema({
   manufacturer: {
     type: String,
     required: true,
-  },
-  image: {
-    public_id: {
-      type: String,
-      default: ''
-    },
-    url: {
-      type: String,
-      default: ''
-    },
   },
 });
 

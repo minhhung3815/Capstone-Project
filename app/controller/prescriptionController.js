@@ -1,5 +1,5 @@
 const Prescription = require("../model/prescriptionModel");
-
+const Appointment = require("../model/appointmentModel");
 /** Get all prescription */
 exports.GetAllDescription = async (req, res, next) => {
   try {
@@ -15,7 +15,7 @@ exports.GetAllDescription = async (req, res, next) => {
 
 /** Get all prescription based on user id */
 exports.GetAllUserPrescription = async (req, res, next) => {
-  const { id } = req.params;
+  const id = req.user?.id;
   if (!id) {
     return res.status(400).json({ success: false, data: "Invalid user id" });
   }
@@ -32,7 +32,7 @@ exports.GetAllUserPrescription = async (req, res, next) => {
 
 /** Get all prescription based on doctor id */
 exports.GetAllDoctorPrescription = async (req, res, next) => {
-  const { id } = req.params;
+  const id = req.user?.id;
   if (!id) {
     return res.status(400).json({ success: false, data: "Invalid doctor id" });
   }
@@ -81,17 +81,13 @@ exports.CreatePrescription = async (req, res, next) => {
     patient_name,
     doctor_name,
     medications,
-    frequency,
+    diagnose,
+    appointment_id = "",
     notes = "",
-  } = req.body ? req.body : "";
-
-  if (
-    !doctor_id ||
-    !patient_name ||
-    !doctor_name ||
-    !medications ||
-    !frequency
-  ) {
+    price = 0,
+  } = req.body;
+  console.log(req.body);
+  if (!patient_name || !doctor_name || !medications || !diagnose) {
     return res
       .status(400)
       .json({ success: false, data: "Please fill all forms" });
@@ -104,23 +100,51 @@ exports.CreatePrescription = async (req, res, next) => {
           patient_name,
           doctor_name,
           medications,
-          frequency,
+          diagnose,
           notes,
+          price,
         })
       : new Prescription({
-          doctor_id,
           patient_name,
           doctor_name,
           medications,
-          frequency,
+          diagnose,
           notes,
+          price,
         });
 
     await prescription.save();
-
+    appointment_id &&
+      (await Appointment.findByIdAndUpdate(appointment_id, {
+        prescription_id: prescription._id,
+      }));
     return res
       .status(200)
       .json({ success: true, data: "Create new prescription successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: error,
+    });
+  }
+};
+
+/** Get detail prescription */
+exports.DeletePrescription = async (req, res, next) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ success: false, data: "Invalid user id" });
+  }
+  try {
+    const list = await Prescription.findByIdAndDelete(id);
+    if (!list) {
+      return res
+        .status(400)
+        .json({ success: false, data: "Prescription not found" });
+    }
+    return res
+      .status(200)
+      .json({ success: true, data: "Delete prescription successfully" });
   } catch (error) {
     return res.status(500).json({
       success: false,

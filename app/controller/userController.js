@@ -1,6 +1,7 @@
 const User = require("../model/userModel");
+const Doctor = require("../model/doctorModel");
 const InactiveUser = require("../model/inactiveUserModel");
-const Specialization = require("../model/specializationModel");
+const Specialization = require("../model/doctorModel");
 const cloudinary = require("cloudinary");
 const sendToken = require("../utils/sendToken");
 const { VerificationMail } = require("../utils/sendEmail");
@@ -11,6 +12,7 @@ const jwt = require("jsonwebtoken");
 
 /** Create new user and admin */
 exports.AddNewUserAndAdmin = async (req, res, next) => {
+  console.log(req.body);
   const fileUpload = req.file ? req.file : "";
   const name = req.body.name ? req.body.name : "";
   const email = req.body.email ? req.body.email : "";
@@ -79,7 +81,7 @@ exports.AddNewUserAndAdmin = async (req, res, next) => {
 
 /** Delete a user */
 exports.DeleteUserAndAdmin = async (req, res, next) => {
-  const id = req.body.id ? req.body.id : "";
+  const id = req.params.id ? req.params.id : "";
   if (!id) {
     return res
       .status(400)
@@ -88,7 +90,7 @@ exports.DeleteUserAndAdmin = async (req, res, next) => {
   try {
     const user = await User.findOneAndDelete({ _id: id });
     if (!user) {
-      return res.status(404).json({ success: false, data: "User not found" });
+      return res.status(400).json({ success: false, data: "User not found" });
     }
     return res
       .status(200)
@@ -111,10 +113,11 @@ exports.AddNewDoctor = async (req, res, next) => {
   const date_of_birth = req.body.date_of_birth
     ? new Date(req.body.date_of_birth)
     : "";
-  const role = req.body.role ? req.body.role : "";
+  const role = "doctor";
   const description = req.body.description ? req.body.description : "";
-  const specialization = req.body.specialization ? req.body.specialization : "";
-  const exp = req.body.exp ? req.body.exp : "";
+  const specialization = req.body.specialization ? req.body.specialization : [];
+  const exp = req.body.exp ? req.body.exp : [];
+  const achievements = req.body.achievements ? req.body.achievements : [];
   if (
     !name ||
     !email ||
@@ -123,8 +126,6 @@ exports.AddNewDoctor = async (req, res, next) => {
     !date_of_birth ||
     !password ||
     !role ||
-    !specialization ||
-    !exp ||
     !description
   ) {
     return res.status(400).json({
@@ -140,7 +141,7 @@ exports.AddNewDoctor = async (req, res, next) => {
           crop: "scale",
         })
       : { public_id: "", secure_url: "" };
-    const new_user = await User.create({
+    await Doctor.create({
       name,
       email,
       gender,
@@ -152,14 +153,10 @@ exports.AddNewDoctor = async (req, res, next) => {
         public_id: avatar.public_id,
         url: avatar.secure_url,
       },
-    });
-
-    await Specialization.create({
-      doctor_id: new_user._id,
-      doctor_name: name,
       description,
-      specialization,
-      exp,
+      exp: JSON.parse(exp),
+      achievements: JSON.parse(achievements),
+      specialization: JSON.parse(specialization),
     });
 
     return res.status(200).json({
@@ -189,12 +186,9 @@ exports.DeleteDoctor = async (req, res, next) => {
       .json({ success: false, data: "Please select doctor to delete" });
   }
   try {
-    const user = await User.findOneAndDelete({ _id: id });
-    const specialization = await Specialization.findOneAndDelete({
-      doctor_id: id,
-    });
-    if (!user || !specialization) {
-      return res.status(404).json({ success: false, data: "User not found" });
+    const user = await Doctor.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(400).json({ success: false, data: "Doctor not found" });
     }
     return res
       .status(200)
@@ -215,10 +209,13 @@ exports.Login = async (req, res, next) => {
     });
   }
   try {
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await Doctor.findOne({ email });
+    }
     if (!user) {
       return res
-        .status(404)
+        .status(400)
         .json({ success: false, data: "Email is not found" });
     }
 
@@ -265,9 +262,13 @@ exports.Register = async (req, res, next) => {
     });
   }
   const template = process.env.MAIL_VERIFICATION;
-  const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
-    expiresIn: process.env.MAIL_VERIFICATION_EXPIRE,
-  });
+  const token = jwt.sign(
+    { email: email, role: role },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: process.env.MAIL_VERIFICATION_EXPIRE,
+    },
+  );
 
   const verificationUrl = `${req.protocol}://${req.get(
     "host",
@@ -308,7 +309,7 @@ exports.Register = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      console.log(error);
+      // console.log(error);
       return res.status(400).json({
         success: false,
         data: "Email is already existed",
@@ -371,7 +372,21 @@ exports.GetUser = async (req, res, next) => {
     if (role !== "doctor" && role !== "manager" && role !== "user") {
       return res.status(400).json({ success: false, data: "Undefined role" });
     }
-    const allUser = await User.find({ role: role }, "-password");
+    const allUser =
+      role === "doctor"
+        ? await Doctor.find({ role: role }, "-password")
+        : await User.find({ role: role }, "-password");
+    // console.log(allUser);
+    return res.status(200).json({ success: true, data: allUser });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: error });
+  }
+};
+
+/** Get list of users based on role  */
+exports.GetAllUserAndAdmin = async (req, res, next) => {
+  try {
+    const allUser = await User.find({}, "-password");
     return res.status(200).json({ success: true, data: allUser });
   } catch (error) {
     return res.status(500).json({ success: false, data: error });
@@ -389,7 +404,7 @@ exports.GetUserAndAdminDetails = async (req, res, next) => {
 
     if (!user) {
       return res
-        .status(404)
+        .status(400)
         .json({ success: false, data: "User doesn't exist" });
     }
 
@@ -409,13 +424,11 @@ exports.GetDoctorDetail = async (req, res, next) => {
     return res.status(400).json({ success: false, data: "Missing user id" });
   }
   try {
-    const user = await Specialization.findOne({ doctor_id: id })
-      .populate("doctor_id", "-password")
-      .exec();
+    const user = await Doctor.findById(id);
 
     if (!user) {
       return res
-        .status(404)
+        .status(400)
         .json({ success: false, data: "User doesn't exist" });
     }
 
@@ -429,7 +442,7 @@ exports.GetDoctorDetail = async (req, res, next) => {
 };
 
 /** Update profile */
-exports.UpdateProfile = async (req, res, next) => {
+exports.UpdateUserProfile = async (req, res, next) => {
   const fileUpload = req.file ? req.file : "";
   const {
     name = "",
@@ -443,7 +456,7 @@ exports.UpdateProfile = async (req, res, next) => {
   const userData = { name, phone_number, gender, date_of_birth };
   try {
     if (fileUpload) {
-      const user = await User.findById(req.user.id);
+      const user = await User.findById(req.user?.id);
 
       const userImage = user.avatar.public_id;
 
@@ -461,7 +474,70 @@ exports.UpdateProfile = async (req, res, next) => {
       };
     }
 
-    await User.findByIdAndUpdate(req.user.id, userData, {
+    await User.findByIdAndUpdate(req.user?.id, userData, {
+      new: true,
+      runValidators: true,
+      useFindAndModify: true,
+    });
+
+    return res
+      .status(200)
+      .json({ success: true, data: "Update profile successfully" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ sucess: false, data: "Something went wrong" });
+  }
+};
+
+/** Update profile */
+exports.UpdateDoctorProfile = async (req, res, next) => {
+  const fileUpload = req.file ? req.file : "";
+  const {
+    name = "",
+    phone_number = "",
+    gender = "",
+    date_of_birth = "",
+    description = "",
+    exp = [],
+    achievements = [],
+    specialization = [],
+  } = req.body;
+  if (!name || !phone_number || !gender || !date_of_birth) {
+    return res.status(400).json({ success: false, data: "Bad request" });
+  }
+  const userData = {
+    name,
+    phone_number,
+    gender,
+    date_of_birth: new Date(date_of_birth),
+    name,
+    description,
+    exp: JSON.parse(exp),
+    achievements: JSON.parse(achievements),
+    specialization: JSON.parse(specialization),
+  };
+  try {
+    if (fileUpload) {
+      const user = await User.findById(req.user?.id);
+
+      const userImage = user.avatar.public_id;
+
+      await cloudinary.v2.uploader.destroy(userImage);
+
+      const avatar = await cloudinary.v2.uploader.upload(fileUpload.path, {
+        folder: "avatars",
+        width: 150,
+        crop: "scale",
+      });
+
+      userData.avatar = {
+        public_id: avatar.public_id,
+        url: avatar.secure_url,
+      };
+    }
+
+    await User.findByIdAndUpdate(req.user?.id, userData, {
       new: true,
       runValidators: true,
       useFindAndModify: true,
@@ -479,7 +555,6 @@ exports.UpdateProfile = async (req, res, next) => {
 
 /** Edit user profile */
 exports.EditUserProfile = async (req, res, next) => {
-  console.log(req.file);
   const fileUpload = req.file ? req.file : "";
   const {
     email = "",
@@ -493,6 +568,7 @@ exports.EditUserProfile = async (req, res, next) => {
     return res.status(400).json({ success: false, data: "Bad request" });
   }
   const userData = {
+    email,
     name,
     phone_number,
     gender,
@@ -528,7 +604,75 @@ exports.EditUserProfile = async (req, res, next) => {
       .status(200)
       .json({ success: true, data: "Update profile successfully" });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
+    return res
+      .status(500)
+      .json({ sucess: false, data: "Something went wrong" });
+  }
+};
+
+/** Edit user profile */
+exports.EditDoctorProfile = async (req, res, next) => {
+  const fileUpload = req.file ? req.file : "";
+  const {
+    email = "",
+    name = "",
+    phone_number = "",
+    gender = "",
+    date_of_birth = "",
+    description = "",
+    exp = [],
+    achievements = [],
+    specialization = [],
+  } = req.body;
+  const userId = req.params.id;
+  if (!email || !name || !phone_number || !gender || !date_of_birth) {
+    return res.status(400).json({ success: false, data: "Bad request" });
+  }
+  const userData = {
+    email,
+    name,
+    phone_number,
+    gender,
+    date_of_birth: new Date(date_of_birth),
+    name,
+    description,
+    exp: JSON.parse(exp),
+    achievements: JSON.parse(achievements),
+    specialization: JSON.parse(specialization),
+  };
+  try {
+    if (fileUpload) {
+      const user = await Doctor.findById(userId);
+
+      const userImage = user.avatar.public_id;
+      if (userImage) {
+        await cloudinary.v2.uploader.destroy(userImage);
+      }
+
+      const avatar = await cloudinary.v2.uploader.upload(fileUpload.path, {
+        folder: "avatars",
+        width: 150,
+        crop: "scale",
+      });
+
+      userData.avatar = {
+        public_id: avatar.public_id,
+        url: avatar.secure_url,
+      };
+    }
+
+    await Doctor.findByIdAndUpdate(userId, userData, {
+      new: true,
+      runValidators: true,
+      useFindAndModify: true,
+    });
+
+    return res
+      .status(200)
+      .json({ success: true, data: "Update profile successfully" });
+  } catch (error) {
+    // console.log(error);
     return res
       .status(500)
       .json({ sucess: false, data: "Something went wrong" });

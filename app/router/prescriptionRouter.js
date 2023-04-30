@@ -12,14 +12,14 @@ router.get(
 
 /** Get all prescription based on user id */
 router.get(
-  "/list/user/:id",
+  "/list/user",
   auth.isAuthenticatedUser,
   prescription.GetAllUserPrescription,
 );
 
 /** Get all prescription based on doctor id */
 router.get(
-  "/list/doctor/:id",
+  "/list/doctor",
   auth.isAuthenticatedUser,
   prescription.GetAllDoctorPrescription,
 );
@@ -29,6 +29,12 @@ router.get(
   "/list/detail/:id",
   auth.isAuthenticatedUser,
   prescription.GetDetailPrescription,
+);
+
+router.delete(
+  "/delete/:id",
+  auth.isAuthenticatedUser,
+  prescription.DeletePrescription,
 );
 
 /** Create prescription */

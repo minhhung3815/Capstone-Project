@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     ref: "Role",
-    default: "User",
+    default: "user",
     required: true,
   },
   createdAt: {
@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema({
   lastLogined: {
     type: Date,
   },
+
+  refreshToken: String,
 });
 
 // userSchema.pre('save', async function (next) {
@@ -61,9 +63,19 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.getJWTToken = function () {
   return jwt.sign(
     { id: this._id, name: this.name, role: this.role, email: this.email },
-    process.env.JWT_SECRET,
+    process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: process.env.JWT_EXPIRE,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRE,
+    },
+  );
+};
+
+userSchema.methods.getRefreshToken = function () {
+  return jwt.sign(
+    { id: this._id, name: this.name, role: this.role, email: this.email },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRE,
     },
   );
 };

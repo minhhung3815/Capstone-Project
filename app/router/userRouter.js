@@ -18,7 +18,15 @@ router.put(
   "/update/profile",
   auth.isAuthenticatedUser,
   multer.single("image"),
-  user.UpdateProfile,
+  user.UpdateUserProfile,
+);
+
+/** Create new user account - ADMIN */
+router.put(
+  "/update/doctor/profile",
+  auth.isAuthenticatedUser,
+  multer.single("image"),
+  user.UpdateDoctorProfile,
 );
 
 router.put(
@@ -26,6 +34,13 @@ router.put(
   auth.isAuthenticatedUser,
   multer.single("image"),
   user.EditUserProfile,
+);
+
+router.put(
+  "/edit/doctor/:id",
+  auth.isAuthenticatedUser,
+  multer.single("image"),
+  user.EditDoctorProfile,
 );
 
 /** Create new doctor */
@@ -38,6 +53,13 @@ router.post(
 
 /** Get list of user by role - ADMIN */
 router.get("/account/:role", auth.isAuthenticatedUser, user.GetUser);
+
+/** Get list of user by role - ADMIN */
+router.get(
+  "/list/all/account",
+  auth.isAuthenticatedUser,
+  user.GetAllUserAndAdmin,
+);
 
 /** Get user and admin detail profile */
 router.get(

@@ -1,9 +1,18 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const requestSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.ObjectId,
-    ref: 'Users',
+    ref: "Doctors",
+    required: true,
+  },
+  receiver_id: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Users",
+    required: true,
+  },
+  title: {
+    type: String,
     required: true,
   },
   createdAt: {
@@ -16,9 +25,9 @@ const requestSchema = new mongoose.Schema({
   },
   accepted: {
     type: String,
-    enum: ["pending", "accepted", "unaccepted"],
+    enum: ["pending", "accept", "reject"],
     default: "pending",
   },
 });
 
-module.exports = mongoose.model('Requests', requestSchema);
+module.exports = mongoose.model("Requests", requestSchema);

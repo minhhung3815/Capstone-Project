@@ -5,12 +5,7 @@ const multer = require("../utils/multer");
 const auth = require("../middleware/auth");
 
 /** Create new medicine */
-router.post(
-  "/new",
-  auth.isAuthenticatedUser,
-  multer.single("image"),
-  medicine.AddNewMedicine,
-);
+router.post("/new", auth.isAuthenticatedUser, medicine.AddNewMedicine);
 
 /** Get list of all medicines */
 router.get("/all", auth.isAuthenticatedUser, medicine.GetAllMedicine);
@@ -23,19 +18,9 @@ router.get(
 );
 
 /** Update medicine information */
-router.put(
-  "/edit/:id",
-  auth.isAuthenticatedUser,
-  multer.single("image"),
-  medicine.EditMedicine,
-);
+router.put("/edit/:id", auth.isAuthenticatedUser, medicine.EditMedicine);
 
 /** Delete  medicine */
-router.delete(
-  "/delete/:id",
-  auth.isAuthenticatedUser,
-  multer.single("image"),
-  medicine.DeleteMedicine,
-);
+router.delete("/delete/:id", auth.isAuthenticatedUser, medicine.DeleteMedicine);
 
 module.exports = router;

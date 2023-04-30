@@ -16,6 +16,13 @@ router.get(
   schedule.ViewSpecificSchedule,
 );
 
+/** Doctor view schedule */
+router.get(
+  "/doctor/my/schedule",
+  auth.isAuthenticatedUser,
+  schedule.DoctorViewSchedule,
+);
+
 /** Delete doctor schedule */
 router.delete(
   "/delete/:id",

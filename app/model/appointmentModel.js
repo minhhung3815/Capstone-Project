@@ -1,7 +1,12 @@
 const mongoose = require("mongoose");
 
 const appointmentSchema = new mongoose.Schema({
-  user_name: {
+  appointmentId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  patient_name: {
     type: String,
     required: true,
   },
@@ -12,7 +17,7 @@ const appointmentSchema = new mongoose.Schema({
   },
   doctor_id: {
     type: mongoose.Schema.ObjectId,
-    ref: "Users",
+    ref: "Doctors",
     required: true,
   },
   doctor_name: {
@@ -41,6 +46,14 @@ const appointmentSchema = new mongoose.Schema({
     type: String,
     enum: ["waiting", "cancelled", "finished"],
     default: "waiting",
+  },
+  service: {
+    type: { type: String, required: true, default: "Other" },
+    price: { type: Number, required: true },
+  },
+  prescription_id: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Prescription",
   },
   payment_id: {
     type: mongoose.Schema.Types.ObjectId,

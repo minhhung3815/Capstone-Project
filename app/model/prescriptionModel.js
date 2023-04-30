@@ -7,8 +7,7 @@ const PrescriptionSchema = new mongoose.Schema({
   },
   doctor_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Users",
-    required: true,
+    ref: "Doctors",
   },
   patient_name: {
     type: String,
@@ -17,6 +16,9 @@ const PrescriptionSchema = new mongoose.Schema({
   doctor_name: {
     type: String,
     required: true,
+  },
+  email: {
+    type: String,
   },
   diagnose: {
     type: String,
@@ -32,10 +34,6 @@ const PrescriptionSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      duration: {
-        type: String,
-        required: true,
-      },
     },
   ],
   date: {
@@ -44,6 +42,10 @@ const PrescriptionSchema = new mongoose.Schema({
   },
   notes: {
     type: String,
+  },
+  price: {
+    type: Number,
+    required: true,
   },
 });
 

@@ -1,21 +1,22 @@
-const sendToken = (user, statusCode, res) => {
-  const token = user.getJWTToken();
-  const sendUserData = {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-  };
+const sendToken = async (user, statusCode, res) => {
+  const accessToken = user.getJWTToken();
+  const refreshToken = user.getRefreshToken();
+
+  user.refreshToken = refreshToken;
+  await user.save();
   const options = {
     expires: new Date(
       Date.now() + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000,
     ),
     httpOnly: false,
   };
-  return res.status(statusCode).cookie("token", token, options).json({
+
+  res.cookie("jwt", refreshToken, options);
+
+  res.status(statusCode).json({
     success: true,
-    sendUserData,
-    token,
+    role: user?.role,
+    accessToken: accessToken,
   });
 };
 

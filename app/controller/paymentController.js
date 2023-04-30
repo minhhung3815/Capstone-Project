@@ -1,6 +1,7 @@
 const Payment = require("../model/paymentModel");
 const Appointment = require("../model/appointmentModel");
 const paypal = require("paypal-rest-sdk");
+const { findById, findByIdAndDelete } = require("../model/medicineModel");
 
 exports.CreatePayment = async (req, res, next) => {
   try {
@@ -55,7 +56,7 @@ exports.CreatePayment = async (req, res, next) => {
         const token = tokenUrl.substring(tokenUrl.indexOf("token=") + 6);
 
         const paymentData = new Payment({
-          user_id: req.user.id,
+          user_id: req.user?.id,
           paymentId: payment.id,
           paymentToken: token,
           appointment_id: appointmentId,
@@ -65,7 +66,7 @@ exports.CreatePayment = async (req, res, next) => {
         const approvalUrl = payment.links.find(
           link => link.rel === "approval_url",
         ).href;
-        return res.json({ success: true, data: approvalUrl });
+        redirect(approvalUrl);
       }
     });
   } catch (error) {
@@ -124,7 +125,7 @@ exports.PaymentCancel = async (req, res, next) => {
     });
     if (!updateStatus) {
       return res
-        .status(404)
+        .status(400)
         .json({ success: false, data: "Transaction not found" });
     }
     return res
@@ -147,18 +148,45 @@ exports.GetPaymentDetail = async (req, res, next) => {
   }
 };
 
+exports.DeletePayment = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const payment = await Payment.findByIdAndDelete(id);
+    if (!payment) {
+      return res
+        .status(400)
+        .json({ success: false, data: "Payment not found" });
+    }
+    return res
+      .status(200)
+      .json({ success: true, data: "Delete transaction successfully" });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: error });
+  }
+};
+
 exports.GetAllPayment = async (req, res, next) => {
   try {
-    const allPayment = await Payment.find();
+    const allPayment = await Payment.find()
+      .populate({
+        path: "user_id",
+        select: "email",
+      })
+      .populate({
+        path: "appointment_id",
+        select: "appointmentId patient_name",
+      })
+      .exec();
     return res.status(200).json({ success: true, data: allPayment });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ success: false, data: error });
   }
 };
 
 exports.GetUserPayment = async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.id;
     const allPayment = await Payment.find({ user_id: userId });
     return res.status(200).json({ success: true, data: allPayment });
   } catch (error) {
