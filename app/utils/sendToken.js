@@ -11,7 +11,7 @@ const sendToken = async (user, statusCode, res) => {
     secure: true,
   };
 
-  res.cookie("jwt", refreshToken, options);
+  res.cookie("jwt", "jklashfkjsfhakjfsahkjsfahksfah", options);
   console.log("Cookie is set");
   res.status(statusCode).json({
     success: true,
