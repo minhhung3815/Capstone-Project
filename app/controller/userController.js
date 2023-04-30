@@ -240,6 +240,7 @@ exports.Login = async (req, res, next) => {
           : "frontend-clinic-iota.vercel.app",
       httpOnly: true,
       secure: true,
+      path: "/",
       sameSite: "none",
     };
     res.cookie("jwt", refreshToken, options);
