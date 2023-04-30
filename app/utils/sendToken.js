@@ -8,7 +8,7 @@ const sendToken = async (user, statusCode, res) => {
     expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
     domain: "vercel.app",
     httpOnly: true,
-    sercure: true,
+    secure: true,
   };
 
   res.cookie("jwt", refreshToken, options);
