@@ -7,7 +7,6 @@ const app = express();
 const paypal = require("paypal-rest-sdk");
 const cloudinary = require("cloudinary");
 const cookieParser = require("cookie-parser");
-const path = require("path");
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({ path: "config.env" });
@@ -42,19 +41,6 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(router);
-
-__dirname = path.resolve();
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/build")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
-  });
-} else {
-  app.get("/", (req, res) => {
-    res.send("Server is Running! 🚀");
-  });
-}
 
 app.listen(port, err => {
   if (err) {
