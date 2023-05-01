@@ -248,6 +248,7 @@ exports.Login = async (req, res, next) => {
       success: true,
       role: user?.role,
       accessToken: accessToken,
+      jwt: refreshToken,
     });
   } catch (error) {
     console.log(error);
