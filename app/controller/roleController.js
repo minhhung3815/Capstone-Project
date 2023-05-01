@@ -17,7 +17,7 @@ exports.CreateRole = async (req, res, next) => {
   } catch (error) {
     if (error.code === 11000) {
       return res
-        .status(400)
+        .status(409)
         .json({ success: false, data: "Role is already existed" });
     }
     return res.status(500).json({ success: false, data: error });

@@ -65,4 +65,9 @@ router.put(
   appointment.UpdateNewAppointment,
 );
 
+router.get(
+  "/doctor/slot/:id/:date",
+  // auth.isAuthenticatedUser,
+  appointment.GetAppointmentSlot,
+);
 module.exports = router;

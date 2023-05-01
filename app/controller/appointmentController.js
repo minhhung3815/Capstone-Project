@@ -1,5 +1,7 @@
 const Appointment = require("../model/appointmentModel");
+const Schedule = require("../model/scheduleModel");
 const schedule = require("node-schedule");
+const { findFreeSlots } = require("../utils/freeSlots");
 const {
   Mail,
   VerificationMail,
@@ -83,22 +85,27 @@ exports.MakeAppointment = async (req, res, next) => {
     doctor_id,
     doctor_name,
     appointment_date,
+    startTime,
+    endTime,
     description,
+    service,
   } = req.body;
   const user_id = req.user.id;
   if (
     !patient_name ||
+    !startTime ||
+    !endTime ||
     !doctor_id ||
     !doctor_name ||
     !appointment_date ||
-    !description
+    !description ||
+    !service
   ) {
     return res
       .status(400)
       .json({ success: false, data: "Please provide information" });
   }
   try {
-    const appointmentCount = await Appointment.countDocuments();
     const appointmentId =
       "APT-" + crypto.randomBytes(3).toString("hex").toUpperCase();
     const new_appointment = await Appointment.create({
@@ -108,6 +115,9 @@ exports.MakeAppointment = async (req, res, next) => {
       doctor_id,
       doctor_name,
       appointment_date,
+      startTime,
+      endTime,
+      service,
       description,
     });
     const appointmentDate = new Date(appointment_date.date);
@@ -146,12 +156,15 @@ exports.MakeAppointment = async (req, res, next) => {
 
 /** Admin make a new appointment */
 exports.MakeAdminAppointment = async (req, res, next) => {
+  // console.log(req.body);
   const {
     user_id,
     patient_name,
     doctor_id,
     doctor_name,
     appointment_date,
+    startTime,
+    endTime,
     description,
     service,
   } = req.body;
@@ -161,9 +174,22 @@ exports.MakeAdminAppointment = async (req, res, next) => {
     !doctor_id ||
     !doctor_name ||
     !appointment_date ||
+    !startTime ||
+    !endTime ||
     !description ||
     !service
   ) {
+    console.log(
+      user_id,
+      patient_name,
+      doctor_id,
+      doctor_name,
+      appointment_date,
+      startTime,
+      endTime,
+      description,
+      service,
+    );
     return res
       .status(400)
       .json({ success: false, data: "Please provide information" });
@@ -179,6 +205,8 @@ exports.MakeAdminAppointment = async (req, res, next) => {
       doctor_id,
       doctor_name,
       appointment_date,
+      startTime,
+      endTime,
       description,
       service,
     });
@@ -275,6 +303,8 @@ exports.UpdateNewAppointment = async (req, res, next) => {
       doctor_id,
       doctor_name,
       appointment_date,
+      startTime,
+      endTime,
       description,
       service,
     } = req.body;
@@ -283,6 +313,8 @@ exports.UpdateNewAppointment = async (req, res, next) => {
       !doctor_id ||
       !doctor_name ||
       !appointment_date ||
+      !startTime ||
+      !endTime ||
       !description ||
       !service
     ) {
@@ -301,6 +333,8 @@ exports.UpdateNewAppointment = async (req, res, next) => {
           appointment_date: appointment_date,
           description: description,
           service: service,
+          startTime,
+          endTime,
         },
       },
       { new: true },
@@ -348,6 +382,8 @@ exports.UpdateAppointment = async (req, res, next) => {
     doctor_id = "",
     doctor_name = "",
     appointment_date = "",
+    startTime,
+    endTime,
     description = "",
     status = "",
     service = "",
@@ -361,7 +397,9 @@ exports.UpdateAppointment = async (req, res, next) => {
     !doctor_name ||
     !appointment_date ||
     !description ||
-    !service
+    !service ||
+    !startTime ||
+    !endTime
   ) {
     return res
       .status(400)
@@ -377,6 +415,8 @@ exports.UpdateAppointment = async (req, res, next) => {
       description,
       status,
       service,
+      startTime,
+      endTime,
     });
     if (!appointment) {
       return res
@@ -389,5 +429,53 @@ exports.UpdateAppointment = async (req, res, next) => {
   } catch (error) {
     // console.log(error);
     return res.status(500).json({ success: false, data: error });
+  }
+};
+
+exports.GetAppointmentSlot = async (req, res, next) => {
+  const { id, date } = req?.params;
+  if (!id || !date) {
+    console.log(id, date);
+    return res.status(400).json({ success: false, data: "Bad requests" });
+  }
+  try {
+    const daysOfWeek = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ];
+    const current = new Date();
+    const aptDate = new Date(date);
+    const dayOfWeek = daysOfWeek[aptDate.getDay()];
+    if (current > aptDate) {
+      return res
+        .status(400)
+        .json({ success: false, data: "Select appointment date in the past" });
+    }
+    const startOfDay = new Date(`${date}T00:00:00.000Z`);
+    const endOfDay = new Date(`${date}T23:59:59.999Z`);
+
+    const appointments = await Appointment.find({
+      doctor_id: id,
+      appointment_date: { $lt: endOfDay, $gt: startOfDay },
+    });
+
+    const schedule = await Schedule.findOne(
+      {
+        doctor_id: id,
+      },
+      { working_time: { $elemMatch: { date: dayOfWeek } } },
+    );
+
+    const freeSlots = await findFreeSlots(schedule, appointments);
+
+    return res.status(200).json({ success: true, data: freeSlots });
+  } catch (error) {
+    console.log(error);
+    return res.send(error);
   }
 };

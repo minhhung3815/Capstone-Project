@@ -22,7 +22,7 @@ exports.CreateDoctorSchedule = async (req, res, next) => {
     // console.log(error);
     if (error.code === 11000) {
       return res
-        .status(400)
+        .status(409)
         .json({ success: false, data: "Schedule is already existed" });
     }
     return res.status(500).json({ success: false, data: error });

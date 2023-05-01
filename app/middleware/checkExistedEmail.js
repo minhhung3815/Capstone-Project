@@ -7,7 +7,7 @@ exports.checkExistedEmail = async (req, res, next) => {
   const doctor = await Doctor.findOne({ email });
   if (user || doctor) {
     return res
-      .status(400)
+      .status(409)
       .json({ success: false, data: "Email is already existed" });
   }
 

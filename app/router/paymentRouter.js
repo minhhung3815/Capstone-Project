@@ -16,7 +16,7 @@ router.get("/paypal/cancel-payment", payment.PaymentCancel);
 router.get("/detail/:id", auth.isAuthenticatedUser, payment.GetPaymentDetail);
 
 /** Delete payment  */
-router.get("/delete/:id", auth.isAuthenticatedUser, payment.DeletePayment);
+router.delete("/delete/:id", auth.isAuthenticatedUser, payment.DeletePayment);
 
 /** Get all payment */
 router.get("/all", auth.isAuthenticatedUser, payment.GetAllPayment);

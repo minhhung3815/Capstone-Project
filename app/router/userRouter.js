@@ -103,4 +103,7 @@ router.get("/verification/:token", user.EmailVerificationToken);
 /** Login */
 router.post("/login", user.Login);
 
+/** Logout */
+router.post("/logout", user.Logout)
+
 module.exports = router;

@@ -12,7 +12,6 @@ const jwt = require("jsonwebtoken");
 
 /** Create new user and admin */
 exports.AddNewUserAndAdmin = async (req, res, next) => {
-  console.log(req.body);
   const fileUpload = req.file ? req.file : "";
   const name = req.body.name ? req.body.name : "";
   const email = req.body.email ? req.body.email : "";
@@ -67,7 +66,7 @@ exports.AddNewUserAndAdmin = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         data: "Email is already existed",
       });
@@ -165,7 +164,7 @@ exports.AddNewDoctor = async (req, res, next) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         data: "Email is already existed",
       });
@@ -256,6 +255,29 @@ exports.Login = async (req, res, next) => {
   }
 };
 
+exports.Logout = async (req, res, next) => {
+  try {
+    const cookies = req?.body;
+    if (!cookies?.jwt) return res.sendStatus(204);
+    const refreshToken = cookies.jwt;
+    let user = await User.findOne({ refreshToken }).exec();
+    if (!user) {
+      user = await Doctor.findOne({ refreshToken }).exec();
+    }
+
+    if (!user) {
+      return res.status(204).json({ success: true, data: "Clear cookies" });
+    }
+
+    user.refreshToken = "";
+    await user.save();
+
+    return res.status(204).json({ success: true, data: "Clear cookies" });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: "Error occurred" });
+  }
+};
+
 /** Register account (user)*/
 exports.Register = async (req, res, next) => {
   const fileUpload = req.file ? req.file : "";
@@ -332,7 +354,7 @@ exports.Register = async (req, res, next) => {
   } catch (error) {
     if (error.code === 11000) {
       // console.log(error);
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         data: "Email is already existed",
       });
@@ -348,6 +370,10 @@ exports.Register = async (req, res, next) => {
 exports.EmailVerificationToken = async (req, res, next) => {
   const { token } = req.params;
   try {
+    const link =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/login"
+        : "https://frontend-clinic-iota.vercel.app/login";
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     const user = await InactiveUser.findOneAndDelete({ token });
     if (!user) {
@@ -373,10 +399,10 @@ exports.EmailVerificationToken = async (req, res, next) => {
       role,
       avatar,
     });
-    return res.redirect("https://facebook.com");
+    return res.redirect(link);
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({
+      return res.status(409).json({
         success: false,
         data: "Email is already existed",
       });

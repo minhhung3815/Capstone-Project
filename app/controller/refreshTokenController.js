@@ -3,6 +3,7 @@ const Doctor = require("../model/doctorModel");
 const jwt = require("jsonwebtoken");
 
 const handleRefreshToken = async (req, res) => {
+  // console.log("abc");
   const cookies = req?.body;
   // const cookies = req.cookies;
   if (!cookies?.jwt) return res.status(401).json({ cookies });
