@@ -86,7 +86,6 @@ exports.CreatePrescription = async (req, res, next) => {
     notes = "",
     price = 0,
   } = req.body;
-  console.log(req.body);
   if (!patient_name || !doctor_name || !medications || !diagnose) {
     return res
       .status(400)
@@ -129,6 +128,67 @@ exports.CreatePrescription = async (req, res, next) => {
   }
 };
 
+/** Update prescription */
+exports.UpdatePrescription = async (req, res, next) => {
+  const { id } = req?.params;
+  const {
+    user_id = "",
+    doctor_id,
+    patient_name,
+    doctor_name,
+    medications,
+    diagnose,
+    notes = "",
+    price = 0,
+  } = req.body;
+  if (!patient_name || !doctor_name || !medications || !diagnose) {
+    return res
+      .status(400)
+      .json({ success: false, data: "Please fill all forms" });
+  }
+  try {
+    const prescription = user_id
+      ? Prescription.findOneAndUpdate(
+          { prescription_id: id },
+          {
+            user_id,
+            doctor_id,
+            patient_name,
+            doctor_name,
+            medications,
+            diagnose,
+            notes,
+            price,
+          },
+        )
+      : Prescription.findOneAndUpdate(
+          { prescription_id: id },
+          {
+            patient_name,
+            doctor_id,
+            doctor_name,
+            medications,
+            diagnose,
+            notes,
+            price,
+          },
+        );
+    if (!prescription) {
+      return res
+        .status(404)
+        .json({ success: false, data: "Prescription not found" });
+    }
+    return res
+      .status(200)
+      .json({ success: true, data: "Create new prescription successfully" });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      data: error,
+    });
+  }
+};
+
 /** Get detail prescription */
 exports.DeletePrescription = async (req, res, next) => {
   const { id } = req.params;
@@ -142,6 +202,10 @@ exports.DeletePrescription = async (req, res, next) => {
         .status(400)
         .json({ success: false, data: "Prescription not found" });
     }
+    await Appointment.findOneAndUpdate(
+      { precription_id: list._id },
+      { precription_id: null },
+    );
     return res
       .status(200)
       .json({ success: true, data: "Delete prescription successfully" });

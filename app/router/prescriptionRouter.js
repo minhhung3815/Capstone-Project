@@ -40,4 +40,7 @@ router.delete(
 /** Create prescription */
 router.post("/new", auth.isAuthenticatedUser, prescription.CreatePrescription);
 
+/** Update prescription */
+router.post("/update/:id", auth.isAuthenticatedUser, prescription.UpdatePrescription);
+
 module.exports = router;

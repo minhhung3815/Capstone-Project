@@ -18,9 +18,16 @@ router.delete("/delete/:id", auth.isAuthenticatedUser, request.DeleteRequests);
 /** Get all user's requests */
 router.get("/user/requests", auth.isAuthenticatedUser, request.GetUserRequests);
 
+/** Get all user's requests */
+router.get(
+  "/admin/requests",
+  auth.isAuthenticatedUser,
+  request.GetAdminRequests,
+);
+
 /** Get specific request */
 router.get(
-  "/specific/requests",
+  "/specific/requests/:id",
   auth.isAuthenticatedUser,
   request.GetSpecificRequest,
 );

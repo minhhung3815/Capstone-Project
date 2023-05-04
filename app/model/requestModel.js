@@ -28,6 +28,10 @@ const requestSchema = new mongoose.Schema({
     enum: ["pending", "accept", "reject"],
     default: "pending",
   },
+  response: {
+    type: String,
+    default: "",
+  },
 });
 
 module.exports = mongoose.model("Requests", requestSchema);

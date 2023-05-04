@@ -35,7 +35,7 @@ exports.ViewAllAppointment = async (req, res, next) => {
 /** View data of specific appointment */
 exports.ViewSpecificAppointment = async (req, res, next) => {
   try {
-    const appointment = await Appointment.findById(req.params.id)
+    const appointment = await Appointment.findById(req?.params?.id)
       .populate({
         path: "doctor_id",
         select: "-password",
@@ -52,6 +52,7 @@ exports.ViewSpecificAppointment = async (req, res, next) => {
     }
     return res.status(200).json({ success: true, data: appointment });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ success: false, data: error });
   }
 };

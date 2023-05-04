@@ -33,7 +33,7 @@ exports.DeleteRequests = async (req, res, next) => {
 
 /** Create new request*/
 exports.CreateRequest = async (req, res, next) => {
-  const user_id = req.user?.id
+  const user_id = req.user?.id;
   const { receiver = "", title = "", explanation = "" } = req.body;
   if (!user_id || !receiver) {
     return res.status(400).json({ success: false, data: "Invalid request" });
@@ -58,14 +58,14 @@ exports.CreateRequest = async (req, res, next) => {
 /** Edit request */
 exports.EditRequest = async (req, res, next) => {
   const { id } = req.params;
-  const { accepted } = req.body;
+  const { accepted, response = "" } = req.body;
   if (!accepted || !id) {
     return res.status(400).json({ success: false, data: "Invalid request" });
   }
   try {
     await Request.findByIdAndUpdate(
       id,
-      { accepted: accepted },
+      { accepted, response },
       { new: true, runValidators: true },
     );
     return res
@@ -96,6 +96,26 @@ exports.GetUserRequests = async (req, res, next) => {
   }
 };
 
+/** Get user's requests */
+exports.GetAdminRequests = async (req, res, next) => {
+  const user_id = req.user?.id;
+  try {
+    const requests = await Request.find({ receiver_id: user_id })
+      .populate({
+        path: "user_id",
+        select: "-password",
+      })
+      .populate({
+        path: "receiver_id",
+        select: "-password",
+      })
+      .exec();
+    return res.status(200).json({ success: true, data: requests });
+  } catch (error) {
+    return res.status(500).json({ success: false, data: error });
+  }
+};
+
 /** Get specific request */
 exports.GetSpecificRequest = async (req, res, next) => {
   const { id } = req.params;
@@ -104,7 +124,8 @@ exports.GetSpecificRequest = async (req, res, next) => {
   }
   try {
     const request = await Request.findById(id)
-      .populate("user_id", "name role")
+      .populate("user_id", "name role email")
+      .populate("receiver_id", "name role email")
       .exec();
     return res.status(200).json({ success: true, data: request });
   } catch (error) {

@@ -246,6 +246,8 @@ exports.Login = async (req, res, next) => {
     return res.status(200).json({
       success: true,
       role: user?.role,
+      id: user?._id,
+      username: user?.name,
       accessToken: accessToken,
       jwt: refreshToken,
     });

@@ -3,7 +3,6 @@ const Doctor = require("../model/doctorModel");
 const jwt = require("jsonwebtoken");
 
 const handleRefreshToken = async (req, res) => {
-  // console.log("abc");
   const cookies = req?.body;
   // const cookies = req.cookies;
   if (!cookies?.jwt) return res.status(401).json({ cookies });
@@ -19,7 +18,10 @@ const handleRefreshToken = async (req, res) => {
     if (err || foundUser.email !== decoded.email) return res.sendStatus(403);
     const role = foundUser.role;
     const accessToken = foundUser.getJWTToken();
-    res.json({ role, accessToken });
+    const username = foundUser.name;
+    const email = foundUser.email;
+    const id = foundUser._id;
+    res.json({ role, accessToken, username, email, id });
   });
 };
 
