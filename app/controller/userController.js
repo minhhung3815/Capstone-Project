@@ -1,7 +1,7 @@
 const User = require("../model/userModel");
 const Doctor = require("../model/doctorModel");
 const InactiveUser = require("../model/inactiveUserModel");
-const Specialization = require("../model/doctorModel");
+const Schedule = require("../model/scheduleModel");
 const cloudinary = require("cloudinary");
 const sendToken = require("../utils/sendToken");
 const { VerificationMail } = require("../utils/sendEmail");
@@ -189,6 +189,7 @@ exports.DeleteDoctor = async (req, res, next) => {
     if (!user) {
       return res.status(400).json({ success: false, data: "Doctor not found" });
     }
+    await Schedule.findOneAndDelete({ doctor_id: id });
     return res
       .status(200)
       .json({ success: true, data: "Delete user successfully" });

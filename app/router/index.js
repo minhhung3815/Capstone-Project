@@ -9,6 +9,7 @@ const paymentRouter = require("./paymentRouter");
 const medicineRouter = require("./medicineRouter");
 const prescriptionRouter = require("./prescriptionRouter");
 const refreshRouter = require("./refreshRouter");
+const statisticsRouter = require("./statisticsRouter");
 const router = express.Router();
 
 router.use("/user", userRouter);
@@ -28,6 +29,8 @@ router.use("/role", roleRouter);
 router.use("/prescription", prescriptionRouter);
 
 router.use("/refresh", refreshRouter);
+
+router.use("/statistic", statisticsRouter);
 
 router.use(error404Router);
 

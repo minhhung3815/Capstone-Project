@@ -46,18 +46,21 @@ const appointmentSchema = new mongoose.Schema(
       enum: ["waiting", "cancelled", "finished", "examined"],
       default: "waiting",
     },
-    service: {
-      type: { type: String, required: true, default: "Other" },
-      price: { type: Number, required: true },
-    },
+    service: [
+      {
+        type: { type: String, required: true, default: "Other" },
+        price: { type: Number, required: true, default: 0 },
+      },
+    ],
     prescription_id: {
-      type: mongoose.Schema.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Prescription",
       default: null,
     },
     payment_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Payment",
+      default: null,
     },
     notificationJob: {
       type: String,
