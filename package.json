@@ -40,7 +40,8 @@
     "nodemailer": "^6.9.1",
     "paypal-node-sdk": "^2.0.3",
     "paypal-rest-sdk": "^1.8.1",
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "pdfkit": "^0.13.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"

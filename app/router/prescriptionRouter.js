@@ -41,6 +41,12 @@ router.delete(
 router.post("/new", auth.isAuthenticatedUser, prescription.CreatePrescription);
 
 /** Update prescription */
-router.post("/update/:id", auth.isAuthenticatedUser, prescription.UpdatePrescription);
+router.post(
+  "/update/:id",
+  auth.isAuthenticatedUser,
+  prescription.UpdatePrescription,
+);
+
+router.get("/download/:id", prescription.SendPrescription);
 
 module.exports = router;

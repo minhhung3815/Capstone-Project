@@ -6,6 +6,7 @@ const {
   Mail,
   VerificationMail,
   AppointmentMail,
+  AppointmentPayment,
 } = require("../utils/sendEmail");
 const crypto = require("crypto");
 
@@ -44,6 +45,7 @@ exports.ViewSpecificAppointment = async (req, res, next) => {
         path: "user_id",
         select: "-password",
       })
+      .populate("prescription_id", null, { age: { $exists: true } })
       .exec();
     if (!appointment) {
       return res
@@ -71,7 +73,7 @@ exports.UserViewAllAppointments = async (req, res, next) => {
 exports.DoctorViewAllAppointments = async (req, res, next) => {
   try {
     const appointments = await Appointment.find({
-      doctor_id: req.user?.id,
+      doctor_id: req?.user?.id,
     });
     return res.status(200).json({ success: true, data: appointments });
   } catch (error) {
@@ -91,7 +93,7 @@ exports.MakeAppointment = async (req, res, next) => {
     description,
     service,
   } = req.body;
-  const user_id = req.user.id;
+  const user_id = req?.user?.id;
   if (
     !patient_name ||
     !startTime ||
@@ -283,7 +285,6 @@ exports.CancelAppointment = async (req, res, next) => {
     }
     const appointmentJob = schedule.scheduledJobs[appointment.notificationJob];
     if (appointmentJob) {
-      console.log("cc");
       appointmentJob.cancel();
     }
     return res
@@ -375,6 +376,79 @@ exports.UpdateNewAppointment = async (req, res, next) => {
 };
 
 /** Admin updates appointment status */
+exports.UpdateExaminedAppointment = async (req, res, next) => {
+  const { id } = req.params;
+  const {
+    user_id = "",
+    patient_name = "",
+    doctor_id = "",
+    doctor_name = "",
+    appointment_date = "",
+    startTime,
+    endTime,
+    description = "",
+    status = "",
+    service = "",
+  } = req.body;
+  if (
+    !status ||
+    !id ||
+    !user_id ||
+    !patient_name ||
+    !doctor_id ||
+    !doctor_name ||
+    !appointment_date ||
+    !description ||
+    !service ||
+    !startTime ||
+    !endTime
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, data: "Something went wrong" });
+  }
+  try {
+    const appointment = await Appointment.findByIdAndUpdate(id, {
+      user_id,
+      patient_name,
+      doctor_id,
+      doctor_name,
+      appointment_date,
+      description,
+      status,
+      service,
+      startTime,
+      endTime,
+    })
+      .populate({ path: "user_id", select: "-password" })
+      .exec();
+    if (!appointment) {
+      return res
+        .status(400)
+        .json({ success: false, data: "Appointment not found" });
+    }
+    const email = appointment?.user_id?.email;
+    const template = process.env.MAIL_PRESCRIPTION;
+
+    const verificationUrl = `http://localhost:3000/user-payment/${appointment?._id}`;
+
+    const payment_email = new AppointmentPayment(
+      email,
+      template,
+      appointment,
+      verificationUrl,
+    );
+    await payment_email.sendEmail();
+    return res
+      .status(200)
+      .json({ success: true, data: "Update appointment status successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, data: error });
+  }
+};
+
+/** Admin updates appointment status */
 exports.UpdateAppointment = async (req, res, next) => {
   const { id } = req.params;
   const {
@@ -436,7 +510,6 @@ exports.UpdateAppointment = async (req, res, next) => {
 exports.GetAppointmentSlot = async (req, res, next) => {
   const { id, date } = req?.params;
   if (!id || !date) {
-    console.log(id, date);
     return res.status(400).json({ success: false, data: "Bad requests" });
   }
   try {
@@ -452,11 +525,6 @@ exports.GetAppointmentSlot = async (req, res, next) => {
     const current = new Date();
     const aptDate = new Date(date);
     const dayOfWeek = daysOfWeek[aptDate.getDay()];
-    if (current > aptDate) {
-      return res
-        .status(400)
-        .json({ success: false, data: "Select appointment date in the past" });
-    }
     const startOfDay = new Date(`${date}T00:00:00.000Z`);
     const endOfDay = new Date(`${date}T23:59:59.999Z`);
 

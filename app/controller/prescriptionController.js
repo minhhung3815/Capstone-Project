@@ -1,5 +1,7 @@
 const Prescription = require("../model/prescriptionModel");
 const Appointment = require("../model/appointmentModel");
+const PDFDocument = require("pdfkit");
+const fs = require("fs");
 /** Get all prescription */
 exports.GetAllDescription = async (req, res, next) => {
   try {
@@ -219,8 +221,89 @@ exports.DeletePrescription = async (req, res, next) => {
 
 /** Send prescription */
 exports.SendPrescription = async (req, res, next) => {
-  const options = {
-    template: process.env.MAIL_PRESCRIPTION,
-    subject: "Patient Prescription",
+  const { id } = req.params;
+  const data = {
+    patient_name: "Hung ABC",
+    doctor_name: "Dr. H",
+    diagnose: "ful",
+    medications: [
+      {
+        name: "Nystatin",
+        dosage: "2",
+        _id: {
+          $oid: "645b50b32bc5b630117eb352",
+        },
+      },
+      {
+        name: "Acetaminophen",
+        dosage: "3",
+        _id: {
+          $oid: "645b50b32bc5b630117eb353",
+        },
+      },
+    ],
+    notes: "fasfas",
+    price: 33.98,
+    date: {
+      $date: "2023-05-10T08:07:15.691Z",
+    },
   };
+
+  // Create a new PDF document
+  const doc = new PDFDocument();
+
+  // Set the response headers for downloading the PDF file
+  res.setHeader("Content-disposition", "attachment; filename=prescription.pdf");
+  res.setHeader("Content-type", "application/pdf");
+
+  // Pipe the PDF document to the response object
+  doc.pipe(res);
+
+  // Write the data to the PDF document
+  // Add a header title to the PDF document
+  doc
+    .fontSize(24)
+    .font("Helvetica-Bold")
+    .fillColor("#3366CC")
+    .text("Clinic System", {
+      align: "center",
+    })
+    .moveDown();
+
+  // Write the data to the PDF document
+  doc
+    .fontSize(12)
+    .font("Helvetica")
+    .fillColor("#333333")
+    .text(`Patient Name: ${data.patient_name}`)
+    .text(`Doctor Name: ${data.doctor_name}`)
+    .text(`Diagnose: ${data.diagnose}`)
+    .text("Medications:")
+    .moveDown();
+  data.medications.forEach(medication => {
+    doc.text(`${medication.name} - ${medication.dosage}`);
+  });
+  doc.moveDown().text(`Notes: ${data.notes}`).text(`Price: $${data.price}`);
+
+  // Add doctor name and signature
+  doc
+    .moveDown(3)
+    .fillColor("#3366CC")
+    .text(`Doctor Name: ${data.doctor_name}`, {
+      align: "right",
+    })
+    .moveDown()
+    .strokeColor("#3366CC")
+    .lineWidth(2)
+    .moveTo(380, doc.y)
+    .lineTo(520, doc.y)
+    .stroke()
+    .moveDown()
+    .fillColor("#333333")
+    .text("Doctor Signature", {
+      align: "right",
+    });
+
+  // Finalize the PDF document
+  doc.end();
 };

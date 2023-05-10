@@ -30,10 +30,17 @@ router.put(
   appointment.UpdateAppointment,
 );
 
+/** Examined appointment status */
+router.put(
+  "/update/examined/:id",
+  // auth.isAuthenticatedUser,
+  appointment.UpdateExaminedAppointment,
+);
+
 /** View specific appointment */
 router.get(
   "/specific/:id",
-  auth.isAuthenticatedUser,
+  // auth.isAuthenticatedUser,
   appointment.ViewSpecificAppointment,
 );
 

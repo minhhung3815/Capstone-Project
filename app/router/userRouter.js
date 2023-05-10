@@ -52,7 +52,7 @@ router.post(
 );
 
 /** Get list of user by role - ADMIN */
-router.get("/account/:role", auth.isAuthenticatedUser, user.GetUser);
+router.get("/account/:role", user.GetUser);
 
 /** Get list of user by role - ADMIN */
 router.get(

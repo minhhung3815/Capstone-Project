@@ -34,6 +34,9 @@ const PrescriptionSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      price: {
+        type: String,
+      },
     },
   ],
   date: {

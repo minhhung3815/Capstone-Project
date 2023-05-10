@@ -36,12 +36,8 @@ exports.CreatePayment = async (req, res, next) => {
         },
       ],
       redirect_urls: {
-        return_url: `${req.protocol}://${req.get(
-          "host",
-        )}payment/paypal/execute-payment`,
-        cancel_url: `${req.protocol}://${req.get(
-          "host",
-        )}payment/paypal/cancel-payment`,
+        return_url: `http://localhost:3000/payment/execute-payment`,
+        cancel_url: `http://localhost:3000/payment/cancel-payment`,
       },
     };
 
@@ -66,7 +62,8 @@ exports.CreatePayment = async (req, res, next) => {
         const approvalUrl = payment.links.find(
           link => link.rel === "approval_url",
         ).href;
-        redirect(approvalUrl);
+        // res.redirect(approvalUrl);
+        return res.status(200).json({ success: true, data: approvalUrl });
       }
     });
   } catch (error) {

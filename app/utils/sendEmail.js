@@ -95,4 +95,43 @@ class AppointmentMail extends Mail {
   }
 }
 
-module.exports = { Mail, VerificationMail, AppointmentMail };
+class AppointmentPayment extends Mail {
+  constructor(email, template, info, link) {
+    super(email);
+    this.subject = "Payment Reminder";
+    this.template = template;
+    this.info = info;
+    this.link = link;
+  }
+
+  html_template(template) {
+    return template
+      .replace("[Patient Name]", this.info?.patient_name)
+      .replace("[Date]", this.info?.appointment_date)
+      .replace("[Payment Link]", this.link);
+  }
+
+  async sendEmail() {
+    const email_template_path = path.join(
+      process.cwd(),
+      "app",
+      `views/${this.template}`,
+    );
+    const template = fs.readFileSync(email_template_path, "utf-8");
+    const html = this.html_template(template);
+    const mailOptions = {
+      from: { name: "Clinic Management", address: process.env.MAIL_USER },
+      to: this.email,
+      subject: this.subject,
+      html: html,
+    };
+    super.sendEmail(mailOptions);
+  }
+}
+
+module.exports = {
+  Mail,
+  VerificationMail,
+  AppointmentMail,
+  AppointmentPayment,
+};

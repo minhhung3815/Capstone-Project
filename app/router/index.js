@@ -10,6 +10,7 @@ const medicineRouter = require("./medicineRouter");
 const prescriptionRouter = require("./prescriptionRouter");
 const refreshRouter = require("./refreshRouter");
 const statisticsRouter = require("./statisticsRouter");
+const serviceRouter = require("./serviceRouter");
 const router = express.Router();
 
 router.use("/user", userRouter);
@@ -31,6 +32,8 @@ router.use("/prescription", prescriptionRouter);
 router.use("/refresh", refreshRouter);
 
 router.use("/statistic", statisticsRouter);
+
+router.use("/services", serviceRouter);
 
 router.use(error404Router);
 
