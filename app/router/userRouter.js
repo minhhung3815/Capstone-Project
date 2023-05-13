@@ -5,7 +5,6 @@ const multer = require("../utils/multer");
 const emailExisted = require("../middleware/checkExistedEmail");
 const auth = require("../middleware/auth");
 
-/** Create new user account - ADMIN */
 router.post(
   "/create/account",
   auth.isAuthenticatedUser,
@@ -13,7 +12,6 @@ router.post(
   user.AddNewUserAndAdmin,
 );
 
-/** Create new user account - ADMIN */
 router.put(
   "/update/profile",
   auth.isAuthenticatedUser,
@@ -21,7 +19,6 @@ router.put(
   user.UpdateUserProfile,
 );
 
-/** Create new user account - ADMIN */
 router.put(
   "/update/doctor/profile",
   auth.isAuthenticatedUser,

@@ -234,23 +234,23 @@ exports.Login = async (req, res, next) => {
     await user.save();
     const options = {
       expires: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-      domain:
-        process.env.NODE_ENV === "development"
-          ? "localhost"
-          : "frontend-clinic-iota.vercel.app",
-      httpOnly: true,
-      secure: true,
-      path: "/",
-      sameSite: "none",
+      // domain:
+      //   process.env.NODE_ENV === "development"
+      //     ? "localhost"
+      //     : "frontend-clinic-iota.vercel.app",
+      // httpOnly: true,
+      // secure: true,
+      // path: "/",
+      // sameSite: "none",
     };
     res.cookie("jwt", refreshToken, options);
     return res.status(200).json({
       success: true,
+      accessToken: accessToken,
       role: user?.role,
       id: user?._id,
       username: user?.name,
-      accessToken: accessToken,
-      jwt: refreshToken,
+      // jwt: refreshToken,
     });
   } catch (error) {
     console.log(error);
@@ -655,7 +655,7 @@ exports.EditUserProfile = async (req, res, next) => {
       .status(200)
       .json({ success: true, data: "Update profile successfully" });
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     return res
       .status(500)
       .json({ sucess: false, data: "Something went wrong" });

@@ -46,5 +46,5 @@ app.listen(port, err => {
   if (err) {
     return console.log("Connection error");
   }
-  return console.log(`Server is connected to ${port} !!!🚀`);
+  return console.log(`Server is connected to ${port}  `);
 });
