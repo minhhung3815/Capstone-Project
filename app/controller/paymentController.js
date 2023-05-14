@@ -93,7 +93,7 @@ exports.PaymentExecute = async (req, res, next) => {
           executed_payment.appointment_id,
           {
             status: "finished",
-            payment_id: executed_payment._id,
+            payment_id: executed_payment?._id,
           },
           { new: true },
         );

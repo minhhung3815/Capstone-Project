@@ -250,7 +250,7 @@ exports.Login = async (req, res, next) => {
       role: user?.role,
       id: user?._id,
       username: user?.name,
-      // jwt: refreshToken,
+      jwt: refreshToken,
     });
   } catch (error) {
     console.log(error);
