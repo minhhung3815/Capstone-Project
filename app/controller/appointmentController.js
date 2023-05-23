@@ -46,6 +46,7 @@ exports.ViewSpecificAppointment = async (req, res, next) => {
         select: "-password",
       })
       .populate("prescription_id", null, { age: { $exists: true } })
+      .populate("payment_id", null, { age: { $exists: true } })
       .exec();
     if (!appointment) {
       return res
@@ -242,7 +243,6 @@ exports.MakeAdminAppointment = async (req, res, next) => {
     await new_appointment.save();
     return res.status(200).json({ success: true, data: new_appointment._id });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ success: false, data: error });
   }
 };

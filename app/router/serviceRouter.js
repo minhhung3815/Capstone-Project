@@ -10,6 +10,6 @@ router.post("/new", service.CreateNewService);
 
 router.put("/update", service.UpdateService);
 
-router.delete("/delete", service.DeleteService);
+router.delete("/delete/:id", service.DeleteService);
 
 module.exports = router;

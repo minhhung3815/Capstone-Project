@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      /* CSS styles */
+      header {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .clinic-info {
+        flex: 1;
+      }
+
+      .clinic-logo {
+        text-align: right;
+      }
+
+      .patient-info {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .patient-info-right {
+        text-align: right;
+      }
+
+      .doctor-signature {
+        display: flex;
+        justify-content: flex-end;
+        align-items: flex-end;
+      }
+
+      .notes {
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <!-- Information of clinic -->
+      <div class="clinic-info">
+        <h1>Clinic Name</h1>
+        <p>Address: Clinic Address</p>
+        <p>Phone: Clinic Phone Number</p>
+        <p>Location: Clinic Location</p>
+      </div>
+      <!-- Clinic logo -->
+      <div class="clinic-logo">
+        <img src="path/to/clinic-logo.png" alt="Clinic Logo" />
+      </div>
+    </header>
+
+    <main>
+      <h2>Patient Information</h2>
+      <!-- Patient's information -->
+      <div class="patient-info">
+        <div>
+          <p><strong>Name:</strong> {patientName}</p>
+          <p><strong>Email:</strong> {email}</p>
+        </div>
+        <div class="patient-info-right">
+          <p><strong>Date of Birth:</strong> {dateOfBirth}</p>
+          <p><strong>Gender:</strong> {gender}</p>
+        </div>
+      </div>
+
+      <h2>Medications</h2>
+      <!-- List of medications -->
+      <ul class="medications">
+        {medications}
+      </ul>
+
+      <div class="notes">
+        <h2>Notes</h2>
+        <p>{notes}</p>
+      </div>
+
+      <div class="doctor-signature">
+        <div>
+          <p>Date: {prescriptionDate}</p>
+          <img src="path/to/doctor-signature.png" alt="Doctor Signature" />
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

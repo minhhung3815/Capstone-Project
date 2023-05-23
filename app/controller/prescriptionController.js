@@ -1,6 +1,6 @@
 const Prescription = require("../model/prescriptionModel");
 const Appointment = require("../model/appointmentModel");
-const PDFDocument = require("pdfkit");
+const pdfGenerate = require("../utils/generatePDF");
 const fs = require("fs");
 /** Get all prescription */
 exports.GetAllDescription = async (req, res, next) => {
@@ -222,88 +222,28 @@ exports.DeletePrescription = async (req, res, next) => {
 /** Send prescription */
 exports.SendPrescription = async (req, res, next) => {
   const { id } = req.params;
-  const data = {
-    patient_name: "Hung ABC",
-    doctor_name: "Dr. H",
-    diagnose: "ful",
-    medications: [
-      {
-        name: "Nystatin",
-        dosage: "2",
-        _id: {
-          $oid: "645b50b32bc5b630117eb352",
-        },
-      },
-      {
-        name: "Acetaminophen",
-        dosage: "3",
-        _id: {
-          $oid: "645b50b32bc5b630117eb353",
-        },
-      },
-    ],
-    notes: "fasfas",
-    price: 33.98,
-    date: {
-      $date: "2023-05-10T08:07:15.691Z",
-    },
-  };
-
-  // Create a new PDF document
-  const doc = new PDFDocument();
-
-  // Set the response headers for downloading the PDF file
-  res.setHeader("Content-disposition", "attachment; filename=prescription.pdf");
-  res.setHeader("Content-type", "application/pdf");
-
-  // Pipe the PDF document to the response object
-  doc.pipe(res);
-
-  // Write the data to the PDF document
-  // Add a header title to the PDF document
-  doc
-    .fontSize(24)
-    .font("Helvetica-Bold")
-    .fillColor("#3366CC")
-    .text("Clinic System", {
-      align: "center",
-    })
-    .moveDown();
-
-  // Write the data to the PDF document
-  doc
-    .fontSize(12)
-    .font("Helvetica")
-    .fillColor("#333333")
-    .text(`Patient Name: ${data.patient_name}`)
-    .text(`Doctor Name: ${data.doctor_name}`)
-    .text(`Diagnose: ${data.diagnose}`)
-    .text("Medications:")
-    .moveDown();
-  data.medications.forEach(medication => {
-    doc.text(`${medication.name} - ${medication.dosage}`);
-  });
-  doc.moveDown().text(`Notes: ${data.notes}`).text(`Price: $${data.price}`);
-
-  // Add doctor name and signature
-  doc
-    .moveDown(3)
-    .fillColor("#3366CC")
-    .text(`Doctor Name: ${data.doctor_name}`, {
-      align: "right",
-    })
-    .moveDown()
-    .strokeColor("#3366CC")
-    .lineWidth(2)
-    .moveTo(380, doc.y)
-    .lineTo(520, doc.y)
-    .stroke()
-    .moveDown()
-    .fillColor("#333333")
-    .text("Doctor Signature", {
-      align: "right",
-    });
-
-  // Finalize the PDF document
-  doc.end();
+  try {
+    const prescription = await Appointment.findById(id)
+      .populate("user_id", null, { age: { $exists: true } })
+      .populate("prescription_id", null, { age: { $exists: true } })
+      .exec();
+    if (!prescription) {
+      return res
+        .status(400)
+        .json({ success: false, data: "Prescription not found" });
+    }
+    const pdfPrescription = await pdfGenerate.createPrescription(prescription);
+    // http://localhost:8098/prescription/download/klafsjlak
+    // fs.writeFileSync("prescription.pdf", pdfPrescription);
+    // console.log(pdfPrescription);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=prescription.pdf",
+    );
+    res.send(pdfPrescription);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ success: false, data: error });
+  }
 };

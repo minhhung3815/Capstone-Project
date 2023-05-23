@@ -67,6 +67,11 @@ exports.CreatePayment = async (req, res, next) => {
       }
     });
   } catch (error) {
+    const dirPath = path.join(
+      process.cwd(),
+      "app",
+      `views/prescription_template.html`,
+    );
     return res.status(500).json({ success: false, data: error });
   }
 };
@@ -110,6 +115,7 @@ exports.PaymentExecute = async (req, res, next) => {
       }
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ success: false, data: error });
   }
 };
